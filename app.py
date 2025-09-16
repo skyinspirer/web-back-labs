@@ -149,8 +149,11 @@ def image():
                 <h1>Дуб</h1>
                 <img src="''' + path + '''">
             </body>
-        </html>
-        '''
+        </html>''', {
+            "X-Server": "sample",
+            "X-Content-Language": "en, ru",
+            "X-Content-Length": "1234"
+        }
 
 count = 0
 
