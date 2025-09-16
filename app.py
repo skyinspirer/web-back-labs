@@ -6,7 +6,6 @@ app = Flask(__name__)
 @app.route("/index")
 def index():
     css = url_for('static', filename='123.css')
-
     return '''<!doctype html>
         <html> 
         <link rel="stylesheet" href="''' + css + '''">
@@ -18,16 +17,9 @@ def index():
           </body>
         </html>'''
 
-
-
-@app.errorhandler(404)
-def not_found(err):
-    return "нет такой страницы", 404
-
 @app.route("/")
 def a():
     css = url_for('static', filename='123.css')
-
     return '''<!doctype html>
         <html> 
         <link rel="stylesheet" href="''' + css + '''">
@@ -142,3 +134,7 @@ def created():
     </body>
 </html>
 ''', 201
+
+@app.errorhandler(404)
+def not_found(err):
+    return "нет такой страницы", 404
