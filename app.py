@@ -135,9 +135,6 @@ def author():
           </body>
         </html>"""
 
-
-
-
 @app.route("/lab1/image")
 def image():
     path = url_for("static", filename="123.png")
@@ -284,6 +281,7 @@ def code403():
 @app.route("/lab1/404")
 def not_found():
     css = url_for('static', filename='123.css')
+    path = url_for("static", filename="2.jpg")
     return '''<!doctype html>
         <html> 
         <link rel="stylesheet" href="''' + css + '''">
@@ -291,6 +289,7 @@ def not_found():
                 <title>НГТУ, ФБ, Лабораторные работы</title>
                 <header>НГТУ, ФБ, WEB-программирование</header>
                 <div>Код ответа на статус ошибки 404. Ошибка 404 — это код ответа HTTP. Он означает, что браузер не нашёл на сервере URL — адрес ресурса в интернете, который пользователь ввёл в адресную строку.</div>
+                <img src="''' + path + '''">
                 <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
           </body>
         </html>''', 404
