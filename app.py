@@ -246,10 +246,6 @@ def created():
 </html>
 ''', 201
 
-@app.errorhandler(404)
-def not_found(err):
-    return "нет такой страницы", 404
-
 @app.route("/lab1/400")
 def code400():
     css = url_for('static', filename='123.css')
@@ -306,21 +302,81 @@ def code403():
           </body>
         </html>''', 403
 
+@app.errorhandler(404)
+def not_found(err):
+    return redirect("/lab1/404")
+
+visit_log = []
+
 @app.route("/lab1/404")
 def not_found():
+    global visit_log
+    
+    # Получаем данные о текущем посещении
+    client_ip = request.remote_addr
+    access_time = datetime.datetime.today()
+    requested_url = request.url
+    
+    # Добавляем запись в лог
+    visit_log.append({
+        'ip': client_ip,
+        'time': access_time,
+        'url': requested_url
+    })
+    
     css = url_for('static', filename='123.css')
     path = url_for("static", filename="2.jpg")
-    return '''<!doctype html>
+    
+    # Формируем HTML с данными
+    html_content = f'''<!doctype html>
         <html> 
-        <link rel="stylesheet" href="''' + css + '''">
+        <link rel="stylesheet" href="{css}">
            <body>
-                <title>НГТУ, ФБ, Лабораторные работы</title>
+                <title>НГТУ, ФБ, Лабораторные работы - Ошибка 404</title>
                 <header>НГТУ, ФБ, WEB-программирование</header>
+                
+                <div><strong>Ошибка 404</strong></div>
                 <div>Код ответа на статус ошибки 404. Ошибка 404 — это код ответа HTTP. Он означает, что браузер не нашёл на сервере URL — адрес ресурса в интернете, который пользователь ввёл в адресную строку.</div>
-                <img src="''' + path + '''">
+                
+                <hr>
+                <div><strong>Информация о текущем посещении:</strong></div>
+                <div>Ваш IP-адрес: {client_ip}</div>
+                <div>Дата и время доступа: {access_time}</div>
+                <div>Запрошенный адрес: {requested_url}</div>
+                
+                <div style="margin: 20px 0;">
+                    <a href="{url_for('index')}">Вернуться на главную страницу</a>
+                </div>
+                
+                <img src="{path}">
+                
+                <hr>
+                <div><strong>Лог посещений страницы 404:</strong></div>
+                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+    '''
+    
+    # Добавляем записи лога в обратном порядке (последние сверху)
+    for entry in reversed(visit_log):
+        html_content += f'''
+                    <div style="margin: 5px 0; padding: 5px; background: #f0f0f0;">
+                        IP: {entry['ip']} | 
+                        Время: {entry['time']} | 
+                        URL: {entry['url']}
+                    </div>
+        '''
+    
+    html_content += f'''
+                </div>
+                
                 <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
           </body>
-        </html>''', 404
+        </html>'''
+    
+    return html_content, 404
+
+
+
+
 
 @app.route("/lab1/405")
 def code405():
