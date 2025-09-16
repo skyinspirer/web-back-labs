@@ -197,6 +197,34 @@ if __name__ == "__main__":
 def info():
     return redirect("/lab1/author")
 
+@app.route("/lab1/obrabotch")
+def obrabotch():
+    css = url_for('static', filename='123.css')
+    a = 100
+    b = 0
+    return '''<!doctype html>
+        <html> 
+        <link rel="stylesheet" href="''' + css + '''">
+           <body>
+                <title>НГТУ, ФБ, Лабораторные работы</title>
+                <header>НГТУ, ФБ, WEB-программирование</header>
+                <div>''' + str(a/b) + '''</div>
+                <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
+          </body>
+        </html>'''
+
+@app.errorhandler(500)
+def not_found2(err):
+    css = url_for('static', filename='123.css')
+    return '''<!doctype html>
+        <html> 
+        <link rel="stylesheet" href="''' + css + '''">
+           <body class='bodyerror'>
+                <title>НГТУ, ФБ, Лабораторные работы</title>
+                <div class='error1'>Внутренняя ошибка сервера!<br>Сервер столкнулся с внутренней ошибкой и не смог выполнить ваш запрос. Сервер перегружен, либо в приложении произошла ошибка.</div>
+                <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
+          </body>
+        </html>''', 500
 
 @app.route("/lab1/created")
 def created():
@@ -214,9 +242,6 @@ def created():
     </body>
 </html>
 ''', 201
-
-
-
 
 @app.errorhandler(404)
 def not_found(err):
