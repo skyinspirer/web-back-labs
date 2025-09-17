@@ -124,14 +124,17 @@ def author():
     name = 'Цеунов Матвей Евгеньевич'
     group = 'ФБИ-31'
     faculty = 'ФБ'
-
+    css = url_for('static', filename='123.css')
     return """<!doctype html>
         <html> 
+        <link rel="stylesheet" href=" """ + css + """ ">
            <body>
-               <p>Студент: """ + name + """</p>
-               <p>Группа: """ + group + """</p>
-               <p>Факультет: """ + faculty + """</p>
-               <a href="/lab1/web">web</a>
+                <header>НГТУ, ФБ, WEB-программирование, часть 2.</header>
+                    <p>Студент: """ + name + """</p>
+                    <p>Группа: """ + group + """</p>
+                    <p>Факультет: """ + faculty + """</p>
+                    <a href="/lab1/web">web</a>
+               <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
           </body>
         </html>"""
 
@@ -159,6 +162,7 @@ count = 0
 
 @app.route("/lab1/counter")
 def counter():
+    css = url_for('static', filename='123.css')
     global count
     count += 1
     time = datetime.datetime.today()
@@ -168,28 +172,35 @@ def counter():
     return '''
     <!doctype html>
         <html>
+        <link rel="stylesheet" href="''' + css + '''">
             <body>
-                Сколько раз вы сюда заходили: ''' + str(count) + '''
-                <hr>
-                Дата и время: ''' + str(time) + ''' <br>
-                Запрошенный адрес: ''' + str(url) + ''' <br>
-                Ваш IP-адрес: ''' + str(client_ip) + ''' <br>
-                <hr>
-                <a href="/lab1/reset_counter">Очистить счетчик</a>
+                <header>НГТУ, ФБ, WEB-программирование, часть 2.</header>
+                    Сколько раз вы сюда заходили: ''' + str(count) + '''
+                    <hr>
+                    Дата и время: ''' + str(time) + ''' <br>
+                    Запрошенный адрес: ''' + str(url) + ''' <br>
+                    Ваш IP-адрес: ''' + str(client_ip) + ''' <br>
+                    <hr>
+                    <a href="/lab1/reset_counter">Очистить счетчик</a>
+                <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
             </body>
         </html>'''
 
 @app.route("/lab1/reset_counter")
 def reset_counter():
+    css = url_for('static', filename='123.css')
     global count
     count = 0
     return '''
     <!doctype html>
         <html>
+        <link rel="stylesheet" href="''' + css + '''">
             <body>
-                Счетчик очищен!
-                <hr>
-                <a href="/lab1/counter">Вернуться к счетчику</a>
+                <header>НГТУ, ФБ, WEB-программирование, часть 2.</header>
+                    Счетчик очищен!
+                    <hr>
+                    <a href="/lab1/counter">Вернуться к счетчику</a>
+                <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
             </body>
         </html>'''
 
