@@ -416,3 +416,14 @@ def code418():
                 <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
           </body>
         </html>''', 418
+
+
+
+@app.route('/lab2/a/')
+def z ():
+    return 'со слешем'
+
+
+@app.route('/lab2/a')
+def z1 ():
+    return 'без слеша'
