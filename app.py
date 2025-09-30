@@ -433,6 +433,7 @@ flower_list = ['роза','тюльпан','незабудка','ромашка'
 
 @app.route('/lab2/flowers/<int:flower_id>')
 def flowers (flower_id):
+    
     if flower_id >= len(flower_list):
         abort(404)
     else:
@@ -453,6 +454,33 @@ def add_flower (name):
     </body>
 </html>
 '''
+
+@app.route("/lab2/add_flower/")
+def none_flower():
+    return render_template('none_flower.html')
+
+@app.route("/lab2/flowerlist")
+def flowerlist():
+    number_flower = len(flower_list)
+    return render_template('flowerlist.html', flower_list=flower_list, number_flower=number_flower)
+
+@app.route("/lab2/clear_flower")
+def clear_flower():
+    css = url_for('static', filename='123.css') 
+    flower_list.clear()
+    return f'''<!doctype html>
+            <html>
+            <link rel="stylesheet" href="{css}">
+            <body>
+                    <title>НГТУ, ФБ, Лабораторная работа 2</title>
+                    <header>НГТУ, ФБ, WEB-программирование, Лабораторная 2</header>
+                    <div>Список очищен</div>
+                    <footer>Цеунов Матвей Евгегьевич, ФБИ-31, 3 курс, 2025</footer>
+                    <a href='/lab2/flowerlist'>Список цветов </a>
+            </body>
+            </html>'''
+
+
 
 @app.route('/lab2/example')
 def example():
@@ -476,3 +504,7 @@ def lab2():
     return render_template('lab2.html')
 
 
+@app.route('/lab2/filters')
+def filters():
+    phrase = 'О <b>сколько</b> <u>нам</u> <i>отркытий</i> чудных...'
+    return render_template('filter.html', phrase=phrase)
