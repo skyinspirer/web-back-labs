@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{# Номер лабораторной работы: #}
+{% block number_lab %}Лабораторная работа 3{% endblock %}
+
+{# Заголовок страницы: #}
+{% block title %}Каталог автомобилей{% endblock %}
+
+{# Основной контент: #}
+{% block main %}
+    <h2>Каталог автомобилей</h2>
+    <div class="cars-info">
+        Всего автомобилей в каталоге: {{ cars_count }}
+    </div>
+    
+    <div class="cars-container">
+        {% for car in cars_list %}
+        <div class="car-item">
+            <div class="car-image">
+                <img src="{{ url_for('static', filename='car/' + car.image) }}" alt="{{ car.name }}" loading="lazy">
+            </div>
+            <div class="car-details">
+                <div class="car-name"><strong>{{ car.name }}</strong></div>
+                <div class="car-brand">Производитель: {{ car.brand }}</div>
+                <div class="car-year">Год выпуска: {{ car.year }}</div>
+                <div class="car-engine">Двигатель: {{ car.engine }}</div>
+                <div class="car-power">Мощность: {{ car.power }} л.с.</div>
+                <div class="car-price">Цена: {{ car.price }}</div>
+                <div class="car-description">{{ car.description }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

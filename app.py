@@ -577,4 +577,128 @@ def books():
                         books_list=books_list, 
                         books_count=len(books_list))
 
+
+
+
+@app.route("/lab2/cars")
+def cars():
+    cars_list = [
+        {
+            "name": "Toyota Camry", 
+            "brand": "Toyota", 
+            "year": 2023, 
+            "engine": "2.5L Hybrid", 
+            "power": 218, 
+            "price": "3 200 000 ₽",
+            "description": "Современный седан с гибридной установкой, экономичный и комфортный.",
+            "image": "toyota_camry.png"
+        },
+        {
+            "name": "BMW X5", 
+            "brand": "BMW", 
+            "year": 2024, 
+            "engine": "3.0L Turbo", 
+            "power": 340, 
+            "price": "7 500 000 ₽",
+            "description": "Премиальный кроссовер с отличной динамикой и роскошным интерьером.",
+            "image": "bmw_x5.png"
+        },
+        {
+            "name": "Mercedes-Benz S-Class", 
+            "brand": "Mercedes-Benz", 
+            "year": 2023, 
+            "engine": "3.0L Hybrid", 
+            "power": 367, 
+            "price": "12 000 000 ₽",
+            "description": "Флагманский седан класса люкс с инновационными технологиями.",
+            "image": "mercedes_s_class.png"
+        },
+        {
+            "name": "Audi A6", 
+            "brand": "Audi", 
+            "year": 2023, 
+            "engine": "2.0L TFSI", 
+            "power": 245, 
+            "price": "4 800 000 ₽",
+            "description": "Бизнес-седан с фирменной оптикой и качественной отделкой.",
+            "image": "audi_a6.png"
+        },
+        {
+            "name": "Volkswagen Tiguan", 
+            "brand": "Volkswagen", 
+            "year": 2023, 
+            "engine": "2.0L TSI", 
+            "power": 190, 
+            "price": "3 500 000 ₽",
+            "description": "Популярный кроссовер с практичным салоном и надежной техникой.",
+            "image": "vw_tiguan.png"
+        },
+        {
+            "name": "Hyundai Tucson", 
+            "brand": "Hyundai", 
+            "year": 2024, 
+            "engine": "1.6L Turbo", 
+            "power": 180, 
+            "price": "2 900 000 ₽",
+            "description": "Стильный кроссовер с агрессивным дизайном и богатой комплектацией.",
+            "image": "hyundai_tucson.png"
+        },
+        {
+            "name": "Kia Sportage", 
+            "brand": "Kia", 
+            "year": 2023, 
+            "engine": "1.6L Turbo", 
+            "power": 180, 
+            "price": "2 800 000 ₽",
+            "description": "Компактный кроссовер с ярким дизайном и передовыми системами.",
+            "image": "kia_sportage.png"
+        },
+        {
+            "name": "Lada Vesta", 
+            "brand": "Lada", 
+            "year": 2024, 
+            "engine": "1.6L", 
+            "power": 106, 
+            "price": "1 300 000 ₽",
+            "description": "Народный автомобиль с обновленным дизайном и доступной ценой.",
+            "image": "lada_vesta.png"
+        },
+        {
+            "name": "Skoda Octavia", 
+            "brand": "Skoda", 
+            "year": 2023, 
+            "engine": "1.4L TSI", 
+            "power": 150, 
+            "price": "2 400 000 ₽",
+            "description": "Практичный лифтбек с огромным багажником и экономичным мотором.",
+            "image": "skoda_octavia.png"
+        },
+        {
+            "name": "Ford Focus", 
+            "brand": "Ford", 
+            "year": 2023, 
+            "engine": "1.5L EcoBoost", 
+            "power": 150, 
+            "price": "2 200 000 ₽",
+            "description": "Динамичный хэтчбек с отличной управляемостью и современной электроникой.",
+            "image": "ford_focus.png"
+        },
+        {
+            "name": "Nissan Qashqai", 
+            "brand": "Nissan", 
+            "year": 2024, 
+            "engine": "1.3L Turbo", 
+            "power": 140, 
+            "price": "2 700 000 ₽",
+            "description": "Первый в мире кроссовер-компакт, обновленная версия популярной модели.",
+            "image": "nissan_qashqai.png"
+        },
+    ]
     
+    return render_template('cars.html', 
+                        cars_list=cars_list, 
+                        cars_count=len(cars_list))
+    
+
+
+
