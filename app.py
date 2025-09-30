@@ -508,3 +508,50 @@ def lab2():
 def filters():
     phrase = 'О <b>сколько</b> <u>нам</u> <i>отркытий</i> чудных...'
     return render_template('filter.html', phrase=phrase)
+
+
+
+@app.route("/lab2/calc/<int:a>/<int:b>")
+def calc(a, b):
+    css = url_for('static', filename='123.css')
+    
+    sum = a + b
+    minus = a - b
+    umn = a * b
+    stepen = a ** b
+    stepen_str = f"{a}<sup>{b}</sup> = {stepen}"
+    
+    if b != 0:
+        delenie = a / b
+        delenie_str = f"{a} / {b} = {delenie}"
+    else:
+        delenie_str = f"{a} / {b} = деление на 0 запрещено!"
+    
+    
+    return f'''<!doctype html>
+        <html>
+        <link rel="stylesheet" href="{css}">
+        <body>
+            <title>НГТУ, ФБ, Лабораторная работа 2</title>
+            <header>НГТУ, ФБ, WEB-программирование, Лабораторная 2</header>
+            <h2>Калькулятор</h2>
+            <div>Число a: {a}</div>
+            <div>Число b: {b}</div>
+            <hr>
+            <div>Сумма: {a} + {b} = {sum}</div>
+            <div>Вычитание: {a} - {b} = {minus}</div>
+            <div>Умножение: {a} * {b} = {umn}</div>
+            <div>Деление: {delenie_str}</div>
+            <div>Возведение в степень: {stepen_str}</div>
+            <hr>
+            <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
+        </body>
+        </html>'''
+
+@app.route("/lab2/calc/")
+def defcalc():
+    return redirect('/lab2/calc/1/1')
+
+@app.route("/lab2/calc/<int:a>")
+def newcalc(a):
+    return redirect(f'/lab2/calc/{a}/1')
