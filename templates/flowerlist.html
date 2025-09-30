@@ -5,6 +5,34 @@
 
 {# Основной контент: #}
 {% block main %}
-    <div>Всего цветов: {{ flower_list }}</div>
     <div>Всего цветов: {{ number_flower }}</div>
+    
+    <h3>Добавить новый цветок:</h3>
+    <form method="POST">
+        <input type="text" name="name" placeholder="Название цветка" required>
+        <input type="number" name="price" placeholder="Цена" required>
+        <button type="submit">Добавить</button>
+    </form>
+    
+    <h3>Список цветов:</h3>
+    <ul>
+        {% for flower in flower_list %}
+        <li>
+            {{ flower.name }} - {{ flower.price }} руб.
+            <a href="/lab2/delete_flower/{{ loop.index0 }}" 
+               onclick="return confirm('Вы уверены, что хотите удалить этот цветок?')"
+               style="color: red; margin-left: 10px;">
+                удалить
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <div style="margin-top: 20px;">
+        <a href="/lab2/clear_flower" 
+           onclick="return confirm('Вы уверены, что хотите удалить ВСЕ цветы?')"
+           style="color: white; background-color: red; padding: 5px 10px; text-decoration: none;">
+            Удалить все цветы
+        </a>
+    </div>
 {% endblock %}

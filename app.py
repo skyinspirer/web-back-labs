@@ -431,28 +431,33 @@ def z1 ():
     return 'без слеша'
 
 
-flower_list = ['роза','тюльпан','незабудка','ромашка']
+flower_list = [
+    {'name': 'роза', 'price': 100},
+    {'name': 'тюльпан', 'price': 80},
+    {'name': 'незабудка', 'price': 50},
+    {'name': 'ромашка', 'price': 30}
+]
 
 @app.route('/lab2/flowers/<int:flower_id>')
-def flowers (flower_id):
-    
+def flowers(flower_id):
     if flower_id >= len(flower_list):
         abort(404)
     else:
-        return "цветок:" + flower_list[flower_id]
-    
+        flower = flower_list[flower_id]
+        return f"Цветок: {flower['name']}, Цена: {flower['price']} руб."
 
-@app.route('/lab2/add_flower/<name>')
-def add_flower (name):
-    flower_list.append(name)
+@app.route('/lab2/add_flower/<name>/<int:price>')
+def add_flower(name, price):
+    flower_list.append({'name': name, 'price': price})
     return f'''
 <!doctype html>
 <html> 
     <body>
-    <h1>"Добавлен новый цветок</h1>
-    <p>Название нового цветка: {name} </p>
-    <p>Всего цветов цветов: {len(flower_list)}</p>
-    <p>Полный список цветов: {flower_list}</p>
+    <h1>Добавлен новый цветок</h1>
+    <p>Название нового цветка: {name}</p>
+    <p>Цена: {price} руб.</p>
+    <p>Всего цветов: {len(flower_list)}</p>
+    <a href="/lab2/flowerlist">Вернуться к списку цветов</a>
     </body>
 </html>
 '''
@@ -461,10 +466,24 @@ def add_flower (name):
 def none_flower():
     return render_template('none_flower.html')
 
-@app.route("/lab2/flowerlist")
+@app.route("/lab2/flowerlist", methods=['GET', 'POST'])
 def flowerlist():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        price = request.form.get('price')
+        if name and price:
+            flower_list.append({'name': name, 'price': int(price)})
+    
     number_flower = len(flower_list)
     return render_template('flowerlist.html', flower_list=flower_list, number_flower=number_flower)
+
+@app.route("/lab2/delete_flower/<int:flower_id>")
+def delete_flower(flower_id):
+    if flower_id >= len(flower_list):
+        abort(404)
+    else:
+        flower_list.pop(flower_id)
+        return redirect('/lab2/flowerlist')
 
 @app.route("/lab2/clear_flower")
 def clear_flower():
