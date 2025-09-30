@@ -1,4 +1,4 @@
-'''<!doctype html>
+<!doctype html>
 <html lang="en"> 
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,7 @@
 </head>
 <body>
     <header>
-         WEB-Программирование, часть 2. Лабораторная работа {{ number_lab }}
+        WEB-Программирование, часть 2. {% if number_lab %}Лабораторная работа 2{% endif %}
     </header>
 
      <main>
@@ -20,7 +20,22 @@
     </main>
 
     <footer>
-        &copy; {{ name }}, {{ group }}, {{ course }} курс, 2025
+        &copy; {% if name %}
+            {{ name }},
+        {% else %}
+            Анонимус,
+        {% endif %}
+        {% if group %}
+            {{ group }},
+        {% else %}
+            Группа неизвестна,
+        {% endif %}
+        {% if course %}
+            {{ course }},
+        {% else %}
+            Курс неизвесен,
+        {% endif %}
+        2025
     </footer>
     </body>
-</html>'''
+</html>
