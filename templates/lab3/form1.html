@@ -25,19 +25,20 @@
     <form>
         <lable>Ваше имя:</lable>
         <div>
-            <input type="text" placeholder="как вас зовут?" name="user">
-        </div>
-
-        <lable>Ваш пол:</lable>
-        <div>
-            <input type="number" name="sex">
+            <input type="text" placeholder="как вас зовут?" name="user" value="{{ user or ''}}">
+            <span class="error" style="color: red;"> {{ errors.user }}</span>
         </div>
 
         <lable>Ваш возрас:</lable>
         <div>
-            <select name="age">
-                <option value="male">Мужской</option>
-                <option value="female">Женский</option>
+            <input name="sex">
+        </div>
+
+        <lable>Ваш пол:</lable>
+        <div>
+            <select type="number" name="age" value="{{age or ''}}">
+                <option value="male" {{ sex == 'male' and 'selected '}}>Мужской</option>
+                <option value="female" {{ sex == 'female' and 'selected '}}>Женский</option>
             </select>
         </div>
 
