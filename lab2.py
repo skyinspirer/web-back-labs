@@ -103,19 +103,19 @@ def example():
     
 
 
-@app.route('/lab2/')
-def lab2():
+@lab2.route('/lab2/')
+def lab():
     return render_template('lab2.html')
 
 
-@app.route('/lab2/filters')
+@lab2.route('/lab2/filters')
 def filters():
     phrase = 'О <b>сколько</b> <u>нам</u> <i>отркытий</i> чудных...'
     return render_template('filter.html', phrase=phrase)
 
 
 
-@app.route("/lab2/calc/<int:a>/<int:b>")
+@lab2.route("/lab2/calc/<int:a>/<int:b>")
 def calc(a, b):
     css = url_for('static', filename='123.css')
     
@@ -152,11 +152,11 @@ def calc(a, b):
         </body>
         </html>'''
 
-@app.route("/lab2/calc/")
+@lab2.route("/lab2/calc/")
 def defcalc():
     return redirect('/lab2/calc/1/1')
 
-@app.route("/lab2/calc/<int:a>")
+@lab2.route("/lab2/calc/<int:a>")
 def newcalc(a):
     return redirect(f'/lab2/calc/{a}/1')
 
@@ -175,7 +175,7 @@ books_list = [
         {"author": "Николай Лесков", "title": "Левша", "genre": "Повесть", "pages": 96}
     ]
 
-@app.route("/lab2/books")
+@lab2.route("/lab2/books")
 def books():
     return render_template('books.html', 
                         books_list=books_list, 
@@ -184,7 +184,7 @@ def books():
 
 
 
-@app.route("/lab2/cars")
+@lab2.route("/lab2/cars")
 def cars():
     cars_list = [
         {

@@ -1,9 +1,13 @@
 from flask import Flask, url_for, request, redirect, abort, render_template
 from lab1 import lab1
+from lab2 import lab2
+from lab3 import lab3
 import datetime
 
 app = Flask(__name__)
 app.register_blueprint(lab1)
+app.register_blueprint(lab2)
+app.register_blueprint(lab3)
 
 
 
@@ -18,6 +22,7 @@ def index():
                 <header>НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных</header>
                     <div><a href="/lab1">Лабораторная работа №1</a></div>
                     <div><a href="/lab2">Лабораторная работа №2</a></div>
+                    <div><a href="/lab3">Лабораторная работа №3</a></div>
                 <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
           </body>
         </html>'''
@@ -33,6 +38,7 @@ def a():
                 <header>НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных</header>
                     <div><a href="/lab1">Лабораторная работа №1</a></div>
                     <div><a href="/lab2">Лабораторная работа №2</a></div>
+                    <div><a href="/lab3">Лабораторная работа №3</a></div>
                 <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
           </body>
         </html>'''
