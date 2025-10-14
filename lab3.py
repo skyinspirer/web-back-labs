@@ -12,7 +12,7 @@ def lab():
 @lab3.route("/lab3/cookie")
 def cookie():
     resp = make_response(redirect('/lab3/'))
-    resp.set_cookie('name', 'Alex', max_age=5)
+    resp.set_cookie('name', 'Matvey', max_age=5)
     resp.set_cookie('age', '20')
     resp.set_cookie('name_color', 'red')
     return resp
@@ -20,7 +20,7 @@ def cookie():
 @lab3.route("/lab3/del_cookie")
 def del_cookie():
     resp = make_response(redirect('/lab3/'))
-    resp.set_cookie('name')
+    resp.set_cookie('name', 'None')
     resp.set_cookie('age')
     resp.set_cookie('name_color')
     return resp
@@ -59,7 +59,6 @@ def pay():
     else:
         price = 70
 
-    # Добавляем стоимость добавок
     if request.args.get('milk') == 'on':
         price += 30
     if request.args.get('sugar') == 'on':
@@ -80,10 +79,35 @@ def success():
     else:
         price = 70
 
-    # Добавляем стоимость добавок (ВАЖНО: те же параметры что и в pay)
     if request.args.get('milk') == 'on':
         price += 30
     if request.args.get('sugar') == 'on':
         price += 10
 
     return render_template('/lab3/success.html', price=price)
+
+
+@lab3.route('/lab3/settings')
+def settings():
+    color = request.args.get('color')
+    bg_color = request.args.get('bg_color')
+    font_size = request.args.get('font_size')
+    cursor = request.args.get('cursor')
+    
+    if color or bg_color or font_size or cursor:
+        resp = make_response(redirect('/lab3/settings'))
+        if color:
+            resp.set_cookie('color', color)
+        if bg_color:
+            resp.set_cookie('bg_color', bg_color)
+        if font_size:
+            resp.set_cookie('font_size', font_size)
+        if cursor:
+            resp.set_cookie('cursor', cursor)
+        return resp
+    
+    color = request.cookies.get('color')
+    bg_color = request.cookies.get('bg_color')
+    font_size = request.cookies.get('font_size')
+    cursor = request.cookies.get('cursor')
+    return render_template('lab3/settings.html', color=color, bg_color=bg_color, font_size=font_size, cursor=cursor)

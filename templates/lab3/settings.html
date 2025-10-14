@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+    <h1>Cookies</h1>
+    <form method="get">
+        <div>
+            <label for="color">Выберите цвет текста:</label>
+            <input type="color" id="color" name="color" value="{{ color or '' }}">
+        </div>
+
+        <div>
+            <label for="bg_color">Выберите цвет фона:</label>
+            <input type="color" id="bg_color" name="bg_color" value="{{ bg_color or '' }}">
+        </div>
+
+        <div>
+            <label for="font_size">Выберите размер шрифта текста:</label>
+            <input type="text" id="font_size" name="font_size" value="{{ font_size or '16px' }}" placeholder="например: 16px">
+        </div>
+
+        <div>
+            <label for="cursor">Изменение курсора:</label>
+            <input type="text" id="cursor" name="cursor" value="{{ cursor or 'pointer' }}" placeholder="например: wait">
+        </div>
+        <div> Примеры изменения параметра cursor: pointer; text; default; move; not-allowed; wait</div>
+        <div>
+            <button type="submit">OK</button>
+        </div>
+    </form>
+{% endblock %}
