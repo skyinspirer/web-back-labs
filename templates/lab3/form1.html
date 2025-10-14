@@ -8,47 +8,43 @@
 
     {% if user %}
 
-    <h1>Привет, {{ user }}!</h1>
+    <h1>Привет. {{ user }}!</h1>
     <h2>Добро пожаловать на наш сайт!</h2>
 
-    <div>Ваш возраст:{{ age }}</div>
-    <div>Ваш пол: {{ 'Мужской' if sex == 'male' else 'Женский'}}</div>
-
-    <ol class='text'>
-        <a href="/lab3/form1">Заново заполнить форму</a>
-    </ol>
+    <div>ваш возраст: {{ age }}</div>
+    <div>ваш пол: {{ 'мужской' if sex == 'male' else 'женский' }}</div>
+    <div>
+        <a href="/lab3/form1">Заново</a>
+    </div>
 
     {% else %}
 
     <h1>Пользователь</h1>
 
     <form>
-        <lable>Ваше имя:</lable>
+        <label>Ваше имя:</label>
         <div>
-            <input type="text" placeholder="как вас зовут?" name="user" value="{{ user or ''}}">
-            <span class="error" style="color: red;"> {{ errors.user }}</span>
+            <input type="text" placeholder="как вас зовут?" name="user" value="{{ user or ''}}"><br>
+            <span style="color: red;">{{ errors.user }}</span>
         </div>
 
-        <lable>Ваш возрас:</lable>
+        <label>Ваш возраст:</label>
         <div>
-            <input name="sex">
+            <input type="number" name='age' value="{{ age or '' }}"><br>
+            <span style="color: red;">{{ errors1.age }}</span>
         </div>
 
-        <lable>Ваш пол:</lable>
+        <label>Ваш пол:</label>
         <div>
-            <select type="number" name="age" value="{{age or ''}}">
-                <option value="male" {{ sex == 'male' and 'selected '}}>Мужской</option>
-                <option value="female" {{ sex == 'female' and 'selected '}}>Женский</option>
+            <select name="sex">
+                <option value="male" {{ sex == 'male' and 'selected' }}>мужчина</option>
+                <option value="female" {{ sex == 'female' and 'selected' }}>женщина</option>
             </select>
         </div>
-
 
         <div>
             <button type="submit">Отправить</button>
         </div>
     </form>
-
-    
-
     {% endif %}
 {% endblock %}

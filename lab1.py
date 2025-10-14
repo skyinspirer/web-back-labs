@@ -178,7 +178,7 @@ def reset_counter():
         </html>'''
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    lab1.run(debug=True)
 
 @lab1.route("/lab1/info")
 def info():
