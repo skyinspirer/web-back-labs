@@ -112,3 +112,39 @@ def settings():
     font_size = request.cookies.get('font_size')
     cursor = request.cookies.get('cursor')
     return render_template('lab3/settings.html', color=color, bg_color=bg_color, font_size=font_size, cursor=cursor)
+
+
+@lab3.route('/lab3/ticket')
+def ticket():
+    return render_template('lab3/ticket.html')
+
+@lab3.route('/lab3/ticket_result')
+def ticket_result():
+    price = 0
+
+    age = int(request.args.get('age'))
+    if age < 18:
+        price = 700
+        is_child = True
+    else:
+        price = 1000
+        is_child = False
+
+    shelf = request.args.get('shelf')
+    if shelf == 'lower' or shelf == 'lower_side':
+        price += 100
+
+    if request.args.get('linen') == 'on':
+        price += 75
+
+    if request.args.get('luggage') == 'on':
+        price += 250
+
+    if request.args.get('insurance') == 'on':
+        price += 150
+
+    return render_template('lab3/ticket_result.html', price=price, is_child=is_child,
+                         fio=request.args.get('fio'), age=age,
+                         departure=request.args.get('departure'),
+                         destination=request.args.get('destination'),
+                         travel_date=request.args.get('travel_date'))
