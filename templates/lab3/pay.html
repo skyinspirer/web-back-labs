@@ -1,0 +1,43 @@
+{% extends "lab3/1pay1.html" %}
+
+{% block number_lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+    <h1>Оплата заказа</h1>
+
+    <div class="payment-summary">
+        <h3>Сумма к оплате: <span class="price">{{ price }} ₽</span></h3>
+    </div>
+
+    <form action="/lab3/success" method="GET" class="payment-form">
+        <input type="hidden" name="drink" value="{{ request.args.get('drink') }}">
+        {% if request.args.get('milk') %}
+        <input type="hidden" name="milk" value="{{ request.args.get('milk') }}">
+        {% endif %}
+        {% if request.args.get('sugar') %}
+        <input type="hidden" name="sugar" value="{{ request.args.get('sugar') }}">
+        {% endif %}
+
+        <div class="form-group">
+            <label>Номер банковской карты:</label>
+            <input type="text" name="card" pattern="\d{16}" placeholder="0000 0000 0000 0000" required>
+            <small>Формат: 16 цифр без пробелов</small>
+        </div>
+
+        <div class="form-group">
+            <label>Имя держателя карты:</label>
+            <input type="text" name="name" placeholder="IVAN IVANOV" required>
+        </div>
+
+        <div class="form-group">
+            <label>Номер CVV:</label>
+            <input type="text" name="cvv" size="3" pattern="\d{3}" placeholder="123" required>
+            <small>3 цифры на обратной стороне карты</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-success">Оплатить {{ price }} ₽</button>
+            <a href="/lab3/order" class="btn-cancel">Вернуться к заказу</a>
+        </div>
+    </form>
+{% endblock %}
