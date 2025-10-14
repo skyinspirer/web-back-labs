@@ -83,7 +83,7 @@ def not_found():
     })
     
     css = url_for('static', filename='123.css')
-    path = url_for("static", filename="2.jpg")
+    path = url_for("static", filename="lab1/2.jpg")
     
 
     html_content = f'''<!doctype html>

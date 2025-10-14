@@ -47,7 +47,7 @@ def add_flower(name, price):
 
 @lab2.route("/lab2/add_flower/")
 def none_flower():
-    return render_template('none_flower.html')
+    return render_template('lab2/none_flower.html')
 
 @lab2.route("/lab2/flowerlist", methods=['GET', 'POST'])
 def flowerlist():
@@ -99,19 +99,19 @@ def example():
         {'name': 'мандарины', 'price': 95},    
         {'name': 'манго', 'price': 321}        
     ]
-    return render_template('example.html', name=name, number_lab=number_lab, group=group, course=course, fruits=fruits)
+    return render_template('lab2/example.html', name=name, number_lab=number_lab, group=group, course=course, fruits=fruits)
     
 
 
 @lab2.route('/lab2/')
 def lab():
-    return render_template('lab2.html')
+    return render_template('lab2/lab2.html')
 
 
 @lab2.route('/lab2/filters')
 def filters():
     phrase = 'О <b>сколько</b> <u>нам</u> <i>отркытий</i> чудных...'
-    return render_template('filter.html', phrase=phrase)
+    return render_template('lab2/filter.html', phrase=phrase)
 
 
 
@@ -177,7 +177,7 @@ books_list = [
 
 @lab2.route("/lab2/books")
 def books():
-    return render_template('books.html', 
+    return render_template('lab2/books.html', 
                         books_list=books_list, 
                         books_count=len(books_list))
 
@@ -299,7 +299,7 @@ def cars():
         },
     ]
     
-    return render_template('cars.html', 
+    return render_template('lab2/cars.html', 
                         cars_list=cars_list, 
                         cars_count=len(cars_list))
     
