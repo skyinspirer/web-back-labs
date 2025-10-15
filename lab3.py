@@ -14,16 +14,16 @@ def lab():
 def cookie():
     resp = make_response(redirect('/lab3/'))
     resp.set_cookie('name', 'Matvey', max_age=5)
-    resp.set_cookie('age', '20')
+    resp.set_cookie('age', '20 лет')
     resp.set_cookie('name_color', 'red')
     return resp
 
 @lab3.route("/lab3/del_cookie")
 def del_cookie():
     resp = make_response(redirect('/lab3/'))
-    resp.set_cookie('name', 'Аноним')
-    resp.set_cookie('age', 'c неизвестным возрастом')
-    resp.set_cookie('name_color')
+    resp.delete_cookie('name')
+    resp.delete_cookie('age')
+    resp.delete_cookie('name_color')
     return resp
 
 
