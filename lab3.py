@@ -186,6 +186,7 @@ products = [
     {"id": 20, "name": "Honor 90", "price": 35990, "brand": "Honor", "color": "Серебристый", "storage": "256GB"}
 ]
 
+#добавление параметров
 def get_price_range():
     """Получить минимальную и максимальную цену из всех товаров"""
     prices = [product['price'] for product in products]
@@ -205,10 +206,11 @@ def product_search():
     if reset:
         resp = make_response(redirect('/lab3/products'))
         resp.delete_cookie('min_price')
-        resp.delete_cookie('max_price')
+        resp.delete_cookie('max_price')#Сброс 
         return resp
     
-    if min_price is not None or max_price is not None:
+    #новые фильтры в куки 
+    if min_price is not None or max_price:
         resp = make_response(redirect('/lab3/products'))
         if min_price is not None:
             resp.set_cookie('min_price', str(min_price))
@@ -216,10 +218,12 @@ def product_search():
             resp.set_cookie('max_price', str(max_price))
         return resp
     
+    #данные из куки при новом запуске 
     if min_price_cookie or max_price_cookie:
         min_price = int(min_price_cookie) if min_price_cookie else None
         max_price = int(max_price_cookie) if max_price_cookie else None
     
+    #корректрировка 
     if min_price and max_price and min_price > max_price:
         min_price, max_price = max_price, min_price
         resp = make_response(redirect('/lab3/products'))
@@ -227,6 +231,7 @@ def product_search():
         resp.set_cookie('max_price', str(max_price))
         return resp
     
+    #применение фильтров перебор 
     filtered_products = products
     if min_price is not None:
         filtered_products = [p for p in filtered_products if p['price'] >= min_price]
