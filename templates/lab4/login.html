@@ -5,6 +5,7 @@
 {% block main %}
     {% if authorized %}
     <h1>Добро пожаловать, {{ login }}</h1>
+        <a href="/lab4/login">Вернуться назад</a>
     {% else %}
         <h1>Вход</h1>
         <h2>Пожалуйста, авторизуйтесь</h2>
@@ -20,8 +21,10 @@
             <div>{{ error }}</div>
             <div>
                 <button type="submit">Войти</button>
-                <button type="reset">Отмена</button>
+                <button type="reset">Отмена</button> 
             </div>
         </form>
+
+        
     {% endif %}
 {% endblock %}
