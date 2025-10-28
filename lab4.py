@@ -155,3 +155,44 @@ def login():
 def logout():
     session.pop('login', None)
     return redirect('/lab4/login')
+
+
+@lab4.route('/lab4/holodos', methods=['GET', 'POST'])
+def holodos():
+    temperature = None
+    error = None
+    snowflakes = 0
+    
+    if request.method == 'POST':
+        temp_input = request.form.get('temperature')
+        
+        # Проверка на пустое значение
+        if not temp_input:
+            error = 'ошибка: не задана температура'
+            return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
+        
+        # Проверка что введено число
+        if not temp_input.lstrip('-').isdigit():
+            error = 'ошибка: введите целое число'
+            return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
+        
+        temperature = int(temp_input)
+        
+        # Проверка диапазонов температуры
+        if temperature < -12:
+            error = 'не удалось установить температуру — слишком низкое значение'
+            return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
+        
+        if temperature > -1:
+            error = 'не удалось установить температуру — слишком высокое значение'
+            return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
+        
+        # Установка корректной температуры
+        if -12 <= temperature <= -9:
+            snowflakes = 3
+        elif -8 <= temperature <= -5:
+            snowflakes = 2
+        elif -4 <= temperature <= -1:
+            snowflakes = 1
+    
+    return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
