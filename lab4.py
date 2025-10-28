@@ -196,3 +196,70 @@ def holodos():
             snowflakes = 1
     
     return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
+
+
+@lab4.route('/lab4/grain_order', methods=['GET', 'POST'])
+def grain_order():
+    grain_type = None
+    weight = None
+    total_price = None
+    error = None
+    discount_applied = False
+    discount_amount = 0
+    
+    prices = {
+        'barley': 12000,  
+        'oats': 8500,     
+        'wheat': 9000,    
+        'rye': 15000      
+    }
+    
+    grain_names = {
+        'barley': 'ячмень',
+        'oats': 'овёс', 
+        'wheat': 'пшеница',
+        'rye': 'рожь'
+    }
+    
+    if request.method == 'POST':
+        grain_type = request.form.get('grain_type')
+        weight_input = request.form.get('weight')
+        
+        # Проверка на пустой вес
+        if not weight_input:
+            error = 'Ошибка: не указан вес заказа'
+        
+        # Проверка что введено число 
+        elif not weight_input.replace('.', '', 1).replace(',', '', 1).isdigit():
+            error = 'Ошибка: введите корректное число для веса'
+        
+        else:
+            # Замена запятой на точку для корректного преобразования
+            weight_input = weight_input.replace(',', '.')
+            weight = float(weight_input)
+            
+            # Проверка на отрицательный или нулевой вес
+            if weight <= 0:
+                error = 'Ошибка: вес должен быть больше 0'
+            
+            # Проверка на слишком большой объем
+            elif weight > 100:
+                error = 'Извините, такого объёма сейчас нет в наличии'
+            
+            else:
+                # Проверка выбора зерна
+                if not grain_type:
+                    error = 'Ошибка: не выбрано зерно'
+                
+                else:
+                    # Расчет стоимости
+                    price_per_ton = prices.get(grain_type)
+                    total_price = weight * price_per_ton
+                    
+                    # Применение скидки за большой объем
+                    if weight > 10:
+                        discount_amount = total_price * 0.1
+                        total_price -= discount_amount
+                        discount_applied = True
+    
+    return render_template('lab4/grain_order.html', grain_type=grain_type, weight=weight, total_price=total_price, error=error, discount_applied=discount_applied, discount_amount=discount_amount, grain_names=grain_names)

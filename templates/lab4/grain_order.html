@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Лабораторная работа 4{% endblock %}
+
+{% block main %}
+<h1>Заказ зерна</h1>
+
+<form method="post">
+    <div style="margin-bottom: 15px;">
+        <label for="grain_type">Выберите зерно:</label>
+        <select id="grain_type" name="grain_type">
+            <option value="">-- Выберите зерно --</option>
+            <option value="barley" {% if grain_type == 'barley' %}selected{% endif %}>Ячмень - 12 000 руб/т</option>
+            <option value="oats" {% if grain_type == 'oats' %}selected{% endif %}>Овёс - 8 500 руб/т</option>
+            <option value="wheat" {% if grain_type == 'wheat' %}selected{% endif %}>Пшеница - 9 000 руб/т</option>
+            <option value="rye" {% if grain_type == 'rye' %}selected{% endif %}>Рожь - 15 000 руб/т</option>
+        </select>
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+        <label for="weight">Вес (тонны):</label>
+        <input type="number" id="weight" name="weight" 
+               step="0.1" min="0.1"
+               value="{{ weight if weight != None else '' }}"
+               placeholder="Введите вес">
+    </div>
+    
+    <div>
+        <button type="submit">Оформить заказ</button>
+        <button type="reset">Сбросить</button>
+    </div>
+</form>
+
+{% if error %}
+    <div class="error" style="color: red; margin-top: 20px; padding: 10px; border: 1px solid red;">
+        <strong>{{ error }}</strong>
+    </div>
+{% endif %}
+
+{% if total_price and not error %}
+    <div class="success" style="margin-top: 20px; padding: 15px; border: 2px solid green; background-color: #f0fff0;">
+        <h3>Заказ успешно сформирован</h3>
+        <p>Вы заказали <strong>{{ grain_names[grain_type] }}</strong>.</p>
+        <p>Вес: <strong>{{ weight }} т</strong>.</p>
+        
+        {% if discount_applied %}
+            <div style="color: #006400; margin: 10px 0;">
+                <p><strong>Применена скидка 10% за большой объём</strong></p>
+                <p>Размер скидки: <strong>{{ "%.2f"|format(discount_amount) }} руб</strong></p>
+            </div>
+        {% endif %}
+        
+        <p style="font-size: 1.2em; margin-top: 10px;">
+            Сумма к оплате: <strong>{{ "%.2f"|format(total_price) }} руб</strong>
+        </p>
+    </div>
+{% endif %}
+
+<div style="margin-top: 30px; padding: 15px; background-color: #f5f5f5;">
+    <h3>Цены на зерно:</h3>
+    <ul>
+        <li>Ячмень: 12 000 руб/т</li>
+        <li>Овёс: 8 500 руб/т</li>
+        <li>Пшеница: 9 000 руб/т</li>
+        <li>Рожь: 15 000 руб/т</li>
+    </ul>
+    <p><strong>Скидки:</strong> при заказе более 10 тонн - скидка 10%</p>
+    <p><strong>Ограничение:</strong> максимальный заказ - 100 тонн</p>
+</div>
+{% endblock %}
