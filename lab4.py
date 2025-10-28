@@ -29,8 +29,8 @@ def div():
     return render_template('lab4/div.html', x1=x1, x2=x2, result=result)
 
 
-@lab4.route("/lab4/summ", methods = ['POST'])
-def summ():
+@lab4.route("/lab4/summa", methods = ['POST'])
+def summa():
     x1 = request.form.get('x1') or '0'
     x2 = request.form.get('x2') or '0'
 
@@ -38,11 +38,11 @@ def summ():
     x2 = int(x2)
     result = x1 + x2
 
-    return render_template('lab4/summ.html', x1=x1, x2=x2, result=result)
+    return render_template('lab4/summa.html', x1=x1, x2=x2, result=result)
 
 
-@lab4.route("/lab4/umn", methods = ['POST'])
-def umn():
+@lab4.route("/lab4/ymnoshenie", methods = ['POST'])
+def ymnoshenie():
     x1 = request.form.get('x1') or '1'
     x2 = request.form.get('x2') or '1'
 
@@ -50,23 +50,23 @@ def umn():
     x2 = int(x2)
     result = x1 * x2
 
-    return render_template('lab4/umn.html', x1=x1, x2=x2, result=result)
+    return render_template('lab4/ymnoshenie.html', x1=x1, x2=x2, result=result)
 
 
-@lab4.route("/lab4/vichit", methods = ['POST'])
-def vichit():
+@lab4.route("/lab4/vichitanie", methods = ['POST'])
+def vichitanie():
     x1 = request.form.get('x1')
     x2 = request.form.get('x2')
 
     if x1 == '' or x2 == '':
-        return render_template('lab4/vichit.html', error='Оба значения должны быть заполнены')
+        return render_template('lab4/vichitanie.html', error='Оба значения должны быть заполнены')
 
 
     x1 = int(x1)
     x2 = int(x2)
     result = x1 - x2
 
-    return render_template('lab4/vichit.html', x1=x1, x2=x2, result=result)
+    return render_template('lab4/vichitanie.html', x1=x1, x2=x2, result=result)
 
 
 @lab4.route("/lab4/stepen", methods = ['POST'])
@@ -75,10 +75,10 @@ def stepen():
     x2 = request.form.get('x2')
 
     if x1 == '' or x2 == '':
-        return render_template('lab4/vichit.html', error='Оба значения должны быть заполнены')
+        return render_template('lab4/stepen.html', error='Оба значения должны быть заполнены')
 
     if x1 == '0' and x2 == '0':
-        return render_template('lab4/stepen.html', error2='Оба поля не должны равняться 0')
+        return render_template('lab4/stepen.html', error='Оба поля не должны равняться 0')
 
     x1 = int(x1)
     x2 = int(x2)
