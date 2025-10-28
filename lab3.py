@@ -144,7 +144,7 @@ def ticket_result():
         price += 150
 
     return render_template('lab3/ticket_result.html', price=price, is_child=is_child,
-                         fio=request.args.get(' '), age=age,
+                         fio=request.args.get('fio'), age=age,
                          departure=request.args.get('departure'),
                          destination=request.args.get('destination'),
                          travel_date=request.args.get('travel_date'))
