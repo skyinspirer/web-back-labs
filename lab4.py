@@ -106,35 +106,48 @@ def tree():
 
 
 users = [
-    {'login': 'alex', 'password': '123'},
-    {'login': 'bob', 'password': '555'},
-    {'login': 'matvey', 'password': '403'},
-    {'login': 'artem', 'password': '984'},
-    {'login': 'sanek', 'password': '432'},
+    {'login': 'alex', 'password': '123', 'name': 'Александр Александрович'},
+    {'login': 'bob', 'password': '555', 'name': 'Боби Петрович'},
+    {'login': 'matvey', 'password': '403', 'name': 'Матвей Евгеньевич'},
+    {'login': 'artem', 'password': '984', 'name': 'Артем Евгеньевич'},
+    {'login': 'sanek', 'password': '432', 'name': 'Александр Алексеевич'},
 ]
 
-@lab4.route('/lab4/login', methods = ['GET', 'POST'])
+@lab4.route('/lab4/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
         if 'login' in session:
             authorized = True
             login = session['login']
+            name = ''
+            for user in users:
+                if user['login'] == login:
+                    name = user['name']
         else:
             authorized = False
-            login = ''
-        return render_template('lab4/login.html', authorized=authorized, login=login)
+            name = ''
+        return render_template('lab4/login.html', authorized=authorized, name=name)
 
     
     login = request.form.get('login')
     password = request.form.get('password')
 
+    if login == '':
+        errorlogin = 'Не введён логин!'
+        return render_template('lab4/login.html', errorlogin=errorlogin, authorized=False)
+    
+    if password == '':
+        errorpassword = 'Не введён пароль!'
+        return render_template('lab4/login.html', errorpassword=errorpassword, authorized=False)
+
     for user in users:
         if login == user['login'] and password == user['password']:
             session['login'] = login
+            session['name'] = user['name']
             return redirect('/lab4/login')
     
     error = 'Неверные логин и/или пароль'
-    return render_template('/lab4/login.html', error=error, authorized=False)
+    return render_template('lab4/login.html', error=error, authorized=False)
 
 
 
