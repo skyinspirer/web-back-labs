@@ -167,7 +167,6 @@ def holodos():
     if request.method == 'POST':
         temp_input = request.form.get('temperature')
         
-        # Проверка на пустое значение
         if not temp_input:
             error = 'ошибка: не задана температура'
             return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
@@ -179,7 +178,6 @@ def holodos():
         
         temperature = int(temp_input)
         
-        # Проверка диапазонов температуры
         if temperature < -12:
             error = 'не удалось установить температуру — слишком низкое значение'
             return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
@@ -188,7 +186,6 @@ def holodos():
             error = 'не удалось установить температуру — слишком высокое значение'
             return render_template('lab4/holodos.html', temperature=temperature, error=error, snowflakes=snowflakes)
         
-        # Установка корректной температуры
         if -12 <= temperature <= -9:
             snowflakes = 3
         elif -8 <= temperature <= -5:
@@ -226,34 +223,27 @@ def grain_order():
         grain_type = request.form.get('grain_type')
         weight_input = request.form.get('weight')
         
-        # Проверка на пустой вес
         if not weight_input:
             error = 'Ошибка: не указан вес заказа'
         
-        # Проверка что введено число 
         elif not weight_input.replace('.', '', 1).replace(',', '', 1).isdigit():
             error = 'Ошибка: введите корректное число для веса'
         
         else:
-            # Замена запятой на точку для корректного преобразования
             weight_input = weight_input.replace(',', '.')
             weight = float(weight_input)
             
-            # Проверка на отрицательный или нулевой вес
             if weight <= 0:
                 error = 'Ошибка: вес должен быть больше 0'
             
-            # Проверка на слишком большой объем
             elif weight > 100:
                 error = 'Извините, такого объёма сейчас нет в наличии'
             
             else:
-                # Проверка выбора зерна
                 if not grain_type:
                     error = 'Ошибка: не выбрано зерно'
                 
                 else:
-                    # Расчет стоимости
                     price_per_ton = prices.get(grain_type)
                     total_price = weight * price_per_ton
                     
@@ -353,7 +343,7 @@ def edit_user():
     if request.method == 'GET':
         return render_template('lab4/edit_user.html', user=current_user)
     
-    # Обработка формы редактирования
+    # редактирования
     login = request.form.get('login')
     password = request.form.get('password')
     password_confirm = request.form.get('password_confirm')
@@ -379,12 +369,10 @@ def edit_user():
         if user['login'] == current_user['login']:
             user['login'] = login
             user['name'] = name
-            # Обновляем пароль только если введен новый
             if password:
                 user['password'] = password
             break
     
-    # Обновление сессии
     session['login'] = login
     session['name'] = name
     
