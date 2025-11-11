@@ -17,11 +17,25 @@
                 Пароль: <input type="password" name="password">
             </label>
         </div>
-        {{ error }}<br>
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
         <button type="submit">Вход</button>
         <div>
             <a href="/lab5">Вернуться</a><br> 
         </div>
     </form>
 
+    
+    <style>
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        margin: 15px 0;
+        text-align: center;
+    }
+    </style>
 {% endblock %}

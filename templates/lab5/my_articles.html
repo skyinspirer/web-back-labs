@@ -3,16 +3,12 @@
 {% block number_lab %}Лабораторная работа 5{% endblock %}
 
 {% block main %}
-<div class="articles-container">
+<div class="my-articles-container">
     <div class="articles-header">
-        <h2>Все статьи</h2>
+        <h2>Мои статьи</h2>
         <div class="user-info">
-            {% if login %}
-                Вы вошли как: <strong>{{ login }}</strong>
-                <a href="/lab5/logout" class="logout-btn">Выйти</a>
-            {% else %}
-                <a href="/lab5/login" class="login-btn">Войти</a>
-            {% endif %}
+            Вы вошли как: <strong>{{ login }}</strong>
+            <a href="/lab5/logout" class="logout-btn">Выйти</a>
         </div>
     </div>
 
@@ -21,20 +17,18 @@
             {% for article in articles %}
             <div class="article-card">
                 <div class="article-header">
-                    <h3>
-                        <a href="/lab5/article/{{ article['id'] }}" class="article-title-link">
-                            {{ article['title'] }}
-                        </a>
-                    </h3>
-                    <div class="article-meta">
-                        Автор: <strong>{{ article['author'] }}</strong>
+                    <h3>{{ article['title'] }}</h3>
+                    <div class="article-actions">
+                        <a href="/lab5/article/{{ article['id'] }}" class="btn-view"> Просмотреть</a>
+                        <a href="/lab5/edit/{{ article['id'] }}" class="btn-edit"> Редактировать</a>
+                        <a href="/lab5/delete/{{ article['id'] }}" class="btn-delete"> Удалить</a>
                     </div>
                 </div>
                 <div class="article-preview">
-                    {{ article['article_text'][:200] }}{% if article['article_text']|length > 200 %}...{% endif %}
+                    {{ article['article_text'][:150] }}{% if article['article_text']|length > 150 %}...{% endif %}
                 </div>
                 <div class="article-footer">
-                    <a href="/lab5/article/{{ article['id'] }}" class="read-more">Читать полностью →</a>
+                    <small>ID: {{ article['id'] }}</small>
                 </div>
             </div>
             {% endfor %}
@@ -42,28 +36,22 @@
     {% else %}
         <div class="no-articles">
             <div class="empty-state">
-                <h3>Статьи пока отсутствуют</h3>
-                <p>Будьте первым, кто создаст статью!</p>
-                {% if login %}
-                    <a href="/lab5/create" class="btn-create">Создать статью</a>
-                {% else %}
-                    <a href="/lab5/login" class="btn-create">Войти для создания статьи</a>
-                {% endif %}
+                <h3>У вас пока нет статей</h3>
+                <p>Создайте свою первую статью!</p>
+                <a href="/lab5/create" class="btn-create">Создать статью</a>
             </div>
         </div>
     {% endif %}
 
     <div class="actions">
-        {% if login %}
-            <a href="/lab5/my_articles" class="btn-primary">Мои статьи</a>
-            <a href="/lab5/create" class="btn-secondary">Создать статью</a>
-        {% endif %}
+        <a href="/lab5/create" class="btn-primary">Создать новую статью</a>
+        <a href="/lab5/list" class="btn-secondary">Все статьи</a>
         <a href="/lab5" class="btn-back">На главную</a>
     </div>
 </div>
 
 <style>
-.articles-container {
+.my-articles-container {
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
@@ -83,19 +71,19 @@
     font-size: 14px;
 }
 
-.logout-btn, .login-btn {
+.logout-btn {
     display: inline-block;
     margin-top: 5px;
     padding: 8px 15px;
-    background: #007bff;
+    background: #dc3545;
     color: white;
     text-decoration: none;
     border-radius: 4px;
     font-size: 12px;
 }
 
-.logout-btn:hover, .login-btn:hover {
-    background: #0056b3;
+.logout-btn:hover {
+    background: #c82333;
 }
 
 .articles-list {
@@ -110,12 +98,11 @@
     padding: 25px;
     background: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s;
 }
 
 .article-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .article-header {
@@ -123,22 +110,56 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 15px;
+    gap: 15px;
 }
 
-.article-title-link {
+.article-header h3 {
+    margin: 0;
     color: #333;
-    text-decoration: none;
+    flex: 1;
     font-size: 1.4em;
 }
 
-.article-title-link:hover {
-    color: #007bff;
+.article-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.article-meta {
-    color: #666;
-    font-size: 0.9em;
+.btn-view, .btn-edit, .btn-delete {
+    padding: 8px 12px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 12px;
     white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-view {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #138496;
+}
+
+.btn-edit {
+    background: #ffc107;
+    color: #212529;
+}
+
+.btn-edit:hover {
+    background: #e0a800;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #c82333;
 }
 
 .article-preview {
@@ -152,16 +173,8 @@
     border-top: 1px solid #eee;
     padding-top: 15px;
     text-align: right;
-}
-
-.read-more {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.read-more:hover {
-    text-decoration: underline;
+    color: #666;
+    font-size: 0.9em;
 }
 
 .no-articles {
@@ -206,20 +219,6 @@
 .btn-primary {
     display: inline-block;
     padding: 12px 25px;
-    background: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: 500;
-}
-
-.btn-primary:hover {
-    background: #0056b3;
-}
-
-.btn-secondary {
-    display: inline-block;
-    padding: 12px 25px;
     background: #28a745;
     color: white;
     text-decoration: none;
@@ -227,8 +226,22 @@
     font-weight: 500;
 }
 
-.btn-secondary:hover {
+.btn-primary:hover {
     background: #218838;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 12px 25px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background: #0056b3;
 }
 
 .btn-back {
@@ -254,7 +267,11 @@
     
     .article-header {
         flex-direction: column;
-        gap: 10px;
+        gap: 15px;
+    }
+    
+    .article-actions {
+        justify-content: center;
     }
     
     .actions {

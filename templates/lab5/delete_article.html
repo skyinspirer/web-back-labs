@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+<div class="delete-article-container">
+    <h2>Удаление статьи</h2>
+
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <div class="confirmation-box">
+        <h3>Вы уверены, что хотите удалить статью?</h3>
+        <div class="article-preview">
+            <h4>"{{ article['title'] }}"</h4>
+            <p>{{ article['article_text'][:100] }}{% if article['article_text']|length > 100 %}...{% endif %}</p>
+        </div>
+
+        <form method="post" class="delete-form">
+            <div class="form-actions">
+                <button type="submit" class="btn-confirm-delete">Да, удалить</button>
+                <a href="/lab5/article/{{ article['id'] }}" class="btn-cancel">Отмена</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="actions">
+        <a href="/lab5/my_articles" class="btn-back">К моим статьям</a>
+        <a href="/lab5/list" class="btn-back">Все статьи</a>
+    </div>
+</div>
+
+<style>
+.delete-article-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.confirmation-box {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.confirmation-box h3 {
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+.article-preview {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.article-preview h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.article-preview p {
+    margin: 0;
+    color: #666;
+    line-height: 1.5;
+}
+
+.delete-form {
+    margin-top: 20px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-confirm-delete {
+    padding: 12px 25px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-confirm-delete:hover {
+    background: #c82333;
+}
+
+.btn-cancel {
+    padding: 12px 25px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.btn-cancel:hover {
+    background: #545b62;
+}
+
+.actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-back {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.btn-back:hover {
+    background: #0056b3;
+}
+

@@ -3,8 +3,8 @@
 {% block number_lab %}Лабораторная работа 5{% endblock %}
 
 {% block main %}
-<div class="create-article-container">
-    <h2>Создание статьи</h2>
+<div class="edit-article-container">
+    <h2>Редактирование статьи</h2>
 
     {% if error %}
     <div class="error-message">{{ error }}</div>
@@ -13,24 +13,23 @@
     <form method="post" class="article-form">
         <div class="form-group">
             <label for="title">Название статьи:</label>
-            <input type="text" id="title" name="title" maxlength="100" required>
-            <small>Максимум 100 символов</small>
+            <input type="text" id="title" name="title" value="{{ article['title'] }}" maxlength="100" required>
         </div>
 
         <div class="form-group">
             <label for="article_text">Текст статьи:</label>
-            <textarea id="article_text" name="article_text" rows="12" required></textarea>
+            <textarea id="article_text" name="article_text" rows="12" required>{{ article['article_text'] }}</textarea>
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn-create">Создать статью</button>
+            <button type="submit" class="btn-save">Сохранить изменения</button>
             <a href="/lab5/list" class="btn-cancel">Отмена</a>
         </div>
     </form>
 </div>
 
 <style>
-.create-article-container {
+.edit-article-container {
     max-width: 700px;
     margin: 0 auto;
     padding: 20px;
@@ -80,18 +79,13 @@
     box-shadow: 0 0 5px rgba(0,123,255,0.3);
 }
 
-.form-group small {
-    color: #666;
-    font-size: 12px;
-}
-
 .form-actions {
     display: flex;
     gap: 15px;
     justify-content: flex-start;
 }
 
-.btn-create {
+.btn-save {
     padding: 12px 25px;
     background: #28a745;
     color: white;
@@ -101,7 +95,7 @@
     font-size: 14px;
 }
 
-.btn-create:hover {
+.btn-save:hover {
     background: #218838;
 }
 

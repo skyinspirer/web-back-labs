@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+<div class="view-article-container">
+    <div class="article-header">
+        <h1>{{ article['title'] }}</h1>
+        <div class="article-meta">
+            Автор: <strong>{{ article['author'] }}</strong>
+            {% if is_author %}
+                <span class="badge-author">Ваша статья</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="article-content">
+        {{ article['article_text'] | replace('\n', '<br>') | safe }}
+    </div>
+
+    <div class="article-actions">
+        {% if is_author %}
+            <a href="/lab5/edit/{{ article['id'] }}" class="btn-edit">✏️ Редактировать</a>
+            <a href="/lab5/delete/{{ article['id'] }}" class="btn-delete">🗑️ Удалить</a>
+        {% endif %}
+        <a href="/lab5/list" class="btn-back">← К списку статей</a>
+        {% if login %}
+            <a href="/lab5/my_articles" class="btn-my">Мои статьи</a>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.view-article-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.article-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.article-header h1 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 2.2em;
+    line-height: 1.3;
+}
+
+.article-meta {
+    color: #666;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.badge-author {
+    background: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+}
+
+.article-content {
+    line-height: 1.8;
+    font-size: 1.1em;
+    color: #444;
+    margin-bottom: 40px;
+}
+
+.article-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-edit, .btn-delete, .btn-back, .btn-my {
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-edit {
+    background: #ffc107;
+    color: #212529;
+}
+
+.btn-edit:hover {
+    background: #e0a800;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+}
+
+.btn-back {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-back:hover {
+    background: #545b62;
+}
+
+.btn-my {
+    background: #007bff;
+    color: white;
+}
+
+.btn-my:hover {
+    background: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .article-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-edit, .btn-delete, .btn-back, .btn-my {
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}

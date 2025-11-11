@@ -2,8 +2,8 @@
 
 {% block number_lab %}Лабораторная работа 5
     <div style="text-align: right; margin: 10px; font-weight: bold;">
-            {% if login %}{{ login }}{% else %}Anonymous{% endif %}
-        </div>
+        {% if login %}{{ login }}{% else %}Anonymous{% endif %}
+    </div>
 {% endblock %}
 
 {% block main %}
@@ -11,12 +11,16 @@
     <div><b>Тема лабораторной Flask и БД. Список сделанных страниц:</b></div>
 
     <div><b>База знаний</b></div>
-    <div class="spisoklab">
+    <div>
         <ol class="text">
-            <li><a href="/lab5/login">Вход</a><br>
-            <li><a href="/lab5/register">Регистрация</a><br>   
-            <li><a href="/lab5/list">Список статей</a><br>   
-            <li><a href="/lab5/create">Создать статью</a><br>   
+            <li><a href="/lab5/login">Вход</a></li>
+            <li><a href="/lab5/register">Регистрация</a></li>   
+            <li><a href="/lab5/list">Все статьи</a></li>   
+            {% if login %}
+            <li><a href="/lab5/my_articles">Мои статьи</a></li>   
+            <li><a href="/lab5/create">Создать статью</a></li>
+            <li><a href="/lab5/logout">Выйти</a></li>
+            {% endif %}
         </ol>
     </div>
 {% endblock %}
