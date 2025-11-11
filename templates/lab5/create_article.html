@@ -22,6 +22,22 @@
             <textarea id="article_text" name="article_text" rows="12" required></textarea>
         </div>
 
+        <div class="form-options">
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" name="is_favorite" value="1">
+                    Добавить в избранное
+                </label>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" name="is_public" value="1" checked>
+                    Сделать статью публичной
+                </label>
+            </div>
+        </div>
+
         <div class="form-actions">
             <button type="submit" class="btn-create">Создать статью</button>
             <a href="/lab5/list" class="btn-cancel">Отмена</a>
@@ -37,19 +53,17 @@
 }
 
 .error-message {
-    background: #f8d7da;
-    color: #721c24;
     padding: 12px;
-    border: 1px solid #f5c6cb;
+    border: 1px solid #ddd;
     border-radius: 5px;
     margin-bottom: 20px;
+    color: #333;
 }
 
 .article-form {
-    background: white;
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 5px;
+    border: 1px solid #ddd;
 }
 
 .form-group {
@@ -77,12 +91,37 @@
 .form-group textarea:focus {
     border-color: #007bff;
     outline: none;
-    box-shadow: 0 0 5px rgba(0,123,255,0.3);
 }
 
 .form-group small {
     color: #666;
     font-size: 12px;
+}
+
+/* Стили для чекбоксов */
+.form-options {
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.checkbox-group:last-child {
+    margin-bottom: 0;
 }
 
 .form-actions {
@@ -93,29 +132,30 @@
 
 .btn-create {
     padding: 12px 25px;
-    background: #28a745;
-    color: white;
-    border: none;
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
 }
 
 .btn-create:hover {
-    background: #218838;
+    background: #e9ecef;
 }
 
 .btn-cancel {
     padding: 12px 25px;
-    background: #6c757d;
-    color: white;
+    background: #f8f9fa;
+    color: #333;
     text-decoration: none;
+    border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 14px;
 }
 
 .btn-cancel:hover {
-    background: #545b62;
+    background: #e9ecef;
 }
 </style>
 {% endblock %}

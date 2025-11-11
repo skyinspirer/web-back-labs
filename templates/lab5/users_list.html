@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+<div class="users-container">
+    <div class="users-header">
+        <h2>Зарегистрированные пользователи</h2>
+        <div class="user-info">
+            {% if login %}
+                Вы вошли как: <strong>{{ login }}</strong>
+                <a href="/lab5/logout" class="logout-btn">Выйти</a>
+            {% else %}
+                <a href="/lab5/login" class="login-btn">Войти</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if users %}
+        <div class="users-list">
+            <div class="users-table">
+                <div class="table-header">
+                    <div class="col-login">Логин</div>
+                    <div class="col-name">Реальное имя</div>
+                </div>
+                {% for user in users %}
+                <div class="table-row">
+                    <div class="col-login">{{ user['login'] }}</div>
+                    <div class="col-name">
+                        {% if user['real_name'] %}
+                            {{ user['real_name'] }}
+                        {% else %}
+                            <span class="no-name">Не указано</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="users-stats">
+            Всего пользователей: <strong>{{ users|length }}</strong>
+        </div>
+    {% else %}
+        <div class="no-users">
+            <div class="empty-state">
+                <h3>Пользователи не найдены</h3>
+                <p>В системе пока нет зарегистрированных пользователей</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="actions">
+        <a href="/lab5/list" class="btn-primary">Все статьи</a>
+        {% if login %}
+            <a href="/lab5/profile" class="btn-secondary">Мой профиль</a>
+        {% endif %}
+        <a href="/lab5" class="btn-back">На главную</a>
+    </div>
+</div>
+
+<style>
+.users-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.users-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.user-info {
+    text-align: right;
+    font-size: 14px;
+}
+
+.logout-btn, .login-btn {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 8px 15px;
+    background: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid #ddd;
+}
+
+.logout-btn:hover, .login-btn:hover {
+    background: #e9ecef;
+}
+
+.users-table {
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+
+.table-header {
+    display: flex;
+    background: #f8f9fa;
+    color: #333;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+}
+
+.table-row {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.table-row:hover {
+    background: #f8f9fa;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.col-login, .col-name {
+    padding: 15px;
+    flex: 1;
+}
+
+.col-login {
+    font-weight: 500;
+    color: #333;
+}
+
+.col-name {
+    color: #666;
+}
+
+.no-name {
+    color: #999;
+    font-style: italic;
+}
+
+.users-stats {
+    text-align: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.no-users {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state {
+    color: #666;
+}
+
+.empty-state h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary, .btn-back {
+    padding: 10px 20px;
+    color: #333;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+}
+
+.btn-primary:hover, .btn-secondary:hover, .btn-back:hover {
+    background: #e9ecef;
+}
+
+@media (max-width: 768px) {
+    .users-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .table-header, .table-row {
+        flex-direction: column;
+    }
+    
+    .col-login, .col-name {
+        padding: 10px;
+    }
+    
+    .actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+{% endblock %}

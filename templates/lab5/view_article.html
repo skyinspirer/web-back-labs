@@ -8,10 +8,25 @@
         <h1>{{ article['title'] }}</h1>
         <div class="article-meta">
             Автор: <strong>{{ article['author'] }}</strong>
+            {% if article['real_name'] %}
+                ({{ article['real_name'] }})
+            {% endif %}
             {% if is_author %}
                 <span class="badge-author">Ваша статья</span>
             {% endif %}
         </div>
+    </div>
+
+    <!-- Статусы статьи -->
+    <div class="article-status">
+        {% if article['is_favorite'] %}
+            <span class="badge favorite">Избранная</span>
+        {% endif %}
+        {% if article['is_public'] %}
+            <span class="badge public">Публичная</span>
+        {% else %}
+            <span class="badge private">Приватная</span>
+        {% endif %}
     </div>
 
     <div class="article-content">
@@ -20,10 +35,10 @@
 
     <div class="article-actions">
         {% if is_author %}
-            <a href="/lab5/edit/{{ article['id'] }}" class="btn-edit">✏️ Редактировать</a>
-            <a href="/lab5/delete/{{ article['id'] }}" class="btn-delete">🗑️ Удалить</a>
+            <a href="/lab5/edit/{{ article['id'] }}" class="btn-edit">Редактировать</a>
+            <a href="/lab5/delete/{{ article['id'] }}" class="btn-delete">Удалить</a>
         {% endif %}
-        <a href="/lab5/list" class="btn-back">← К списку статей</a>
+        <a href="/lab5/list" class="btn-back">К списку статей</a>
         {% if login %}
             <a href="/lab5/my_articles" class="btn-my">Мои статьи</a>
         {% endif %}
@@ -38,32 +53,51 @@
 }
 
 .article-header {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .article-header h1 {
     color: #333;
     margin-bottom: 15px;
-    font-size: 2.2em;
+    font-size: 2em;
     line-height: 1.3;
 }
 
 .article-meta {
     color: #666;
-    font-size: 1.1em;
+    font-size: 1em;
     display: flex;
     align-items: center;
     gap: 15px;
 }
 
 .badge-author {
-    background: #28a745;
-    color: white;
+    background: #f8f9fa;
+    color: #333;
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: 3px;
     font-size: 0.8em;
+    border: 1px solid #ddd;
+}
+
+/* Стили для статусов */
+.article-status {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 8px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-weight: 500;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    color: #333;
 }
 
 .article-content {
@@ -75,7 +109,7 @@
 
 .article-actions {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     flex-wrap: wrap;
     padding-top: 20px;
     border-top: 1px solid #e0e0e0;
@@ -86,43 +120,13 @@
     text-decoration: none;
     border-radius: 5px;
     font-weight: 500;
-    transition: all 0.2s;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    color: #333;
 }
 
-.btn-edit {
-    background: #ffc107;
-    color: #212529;
-}
-
-.btn-edit:hover {
-    background: #e0a800;
-}
-
-.btn-delete {
-    background: #dc3545;
-    color: white;
-}
-
-.btn-delete:hover {
-    background: #c82333;
-}
-
-.btn-back {
-    background: #6c757d;
-    color: white;
-}
-
-.btn-back:hover {
-    background: #545b62;
-}
-
-.btn-my {
-    background: #007bff;
-    color: white;
-}
-
-.btn-my:hover {
-    background: #0056b3;
+.btn-edit:hover, .btn-delete:hover, .btn-back:hover, .btn-my:hover {
+    background: #e9ecef;
 }
 
 @media (max-width: 768px) {
