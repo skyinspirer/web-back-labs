@@ -103,7 +103,10 @@ def login():
         
         session['login'] = login
         session['user_id'] = user['id']
-        session['real_name'] = user.get('real_name', '')
+        
+        # Простое решение - используем индексацию и преобразование в строку
+        session['real_name'] = str(user['real_name']) if user['real_name'] else ''
+        
         db_close(conn, cur)
         return redirect('/lab5')
     except Exception as e:
