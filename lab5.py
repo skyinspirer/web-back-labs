@@ -193,17 +193,9 @@ def my_articles():
         user_id = session.get('user_id')
 
         if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("""
-                SELECT * FROM articles 
-                WHERE user_id=%s 
-                ORDER BY is_favorite DESC, id DESC;
-            """, (user_id,))
+            cur.execute("SELECT * FROM articles WHERE user_id=%s ORDER BY id DESC;", (user_id,))
         else:
-            cur.execute("""
-                SELECT * FROM articles 
-                WHERE user_id=? 
-                ORDER BY is_favorite DESC, id DESC;
-            """, (user_id,))
+            cur.execute("SELECT * FROM articles WHERE user_id=? ORDER BY id DESC;", (user_id,))
         
         articles = cur.fetchall()
         db_close(conn, cur)
@@ -219,27 +211,25 @@ def view_article(article_id):
     conn, cur = db_connect()
 
     try:
-        # Получаем статью с информацией об авторе
+        # Простой запрос для получения статьи
         if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("""
-                SELECT a.*, u.login as author, u.real_name 
-                FROM articles a 
-                JOIN users u ON a.user_id = u.id 
-                WHERE a.id=%s AND (a.is_public = TRUE OR u.id = %s);
-            """, (article_id, session.get('user_id', 0)))
+            cur.execute("SELECT * FROM articles WHERE id=%s;", (article_id,))
         else:
-            cur.execute("""
-                SELECT a.*, u.login as author, u.real_name 
-                FROM articles a 
-                JOIN users u ON a.user_id = u.id 
-                WHERE a.id=? AND (a.is_public = TRUE OR u.id = ?);
-            """, (article_id, session.get('user_id', 0)))
+            cur.execute("SELECT * FROM articles WHERE id=?;", (article_id,))
         
         article = cur.fetchone()
 
         if not article:
             db_close(conn, cur)
             return render_template('lab5/article_not_found.html')
+
+        # Проверяем доступ к статье
+        # Если статья не публичная и пользователь не автор - доступ запрещен
+        if not article['is_public']:
+            user_id = session.get('user_id')
+            if not user_id or user_id != article['user_id']:
+                db_close(conn, cur)
+                return render_template('lab5/article_not_found.html')
 
         # Проверяем, является ли пользователь автором статьи
         is_author = False
@@ -408,16 +398,14 @@ def profile():
 
         errors = []
 
-        # Проверка текущего пароля если меняется пароль
+        # Проверка пароля
         if new_password:
             if not current_password:
-                errors.append('Для смены пароля введите текущий пароль')
+                errors.append('Введите текущий пароль')
             elif not check_password_hash(user['password'], current_password):
                 errors.append('Текущий пароль неверен')
             elif new_password != confirm_password:
-                errors.append('Новый пароль и подтверждение не совпадают')
-            elif len(new_password) < 3:
-                errors.append('Новый пароль слишком короткий')
+                errors.append('Пароли не совпадают')
 
         if errors:
             db_close(conn, cur)
@@ -428,22 +416,12 @@ def profile():
 
         # Обновляем данные
         if new_password:
-            # Меняем и имя и пароль
             password_hash = generate_password_hash(new_password)
             if current_app.config['DB_TYPE'] == 'postgres':
-                cur.execute("""
-                    UPDATE users 
-                    SET real_name=%s, password=%s 
-                    WHERE id=%s;
-                """, (new_real_name, password_hash, user_id))
+                cur.execute("UPDATE users SET real_name=%s, password=%s WHERE id=%s;", (new_real_name, password_hash, user_id))
             else:
-                cur.execute("""
-                    UPDATE users 
-                    SET real_name=?, password=? 
-                    WHERE id=?;
-                """, (new_real_name, password_hash, user_id))
+                cur.execute("UPDATE users SET real_name=?, password=? WHERE id=?;", (new_real_name, password_hash, user_id))
         else:
-            # Меняем только имя
             if current_app.config['DB_TYPE'] == 'postgres':
                 cur.execute("UPDATE users SET real_name=%s WHERE id=%s;", (new_real_name, user_id))
             else:
@@ -458,6 +436,7 @@ def profile():
     except Exception as e:
         db_close(conn, cur)
         return render_template('lab5/profile.html', login=login, real_name=session.get('real_name', ''), errors=['Ошибка при обновлении профиля'])
+
 
 @lab5.route('/lab5/toggle_favorite/<int:article_id>')
 def toggle_favorite(article_id):
