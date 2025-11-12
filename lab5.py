@@ -168,24 +168,11 @@ def list_articles():
     conn, cur = db_connect()
 
     try:
-        # Получаем все статьи вместе с информацией об авторах
-        # Сначала избранные, затем обычные, сначала публичные
+        #  запрос для получения всех публичных статей
         if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("""
-                SELECT a.*, u.login as author, u.real_name 
-                FROM articles a 
-                JOIN users u ON a.user_id = u.id 
-                WHERE a.is_public = TRUE
-                ORDER BY a.is_favorite DESC, a.id DESC;
-            """)
+            cur.execute("SELECT * FROM articles WHERE is_public = TRUE ORDER BY id DESC;")
         else:
-            cur.execute("""
-                SELECT a.*, u.login as author, u.real_name 
-                FROM articles a 
-                JOIN users u ON a.user_id = u.id 
-                WHERE a.is_public = TRUE
-                ORDER BY a.is_favorite DESC, a.id DESC;
-            """)
+            cur.execute("SELECT * FROM articles WHERE is_public = TRUE ORDER BY id DESC;")
         
         articles = cur.fetchall()
         db_close(conn, cur)
