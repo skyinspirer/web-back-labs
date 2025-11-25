@@ -12,8 +12,8 @@ def db_connect():
     if current_app.config['DB_TYPE'] == 'postgres':
         conn = psycopg2.connect(
             host = '127.0.0.1',
-            database = 'alex_ryazantsev_knowledge_base',
-            user = 'alex_ryazantsev_knowledge_base',
+            database = 'tseunov_matvey_knowledge_base',
+            user = 'tseunov_matvey_knowledge_base',
             password = '123'
         )
         cur = conn.cursor(cursor_factory = RealDictCursor)
@@ -53,9 +53,14 @@ def api():
         offices = cur.fetchall()
         db_close(conn, cur)
 
+        # Конвертируем в обычный словарь для JSON сериализации
+        offices_list = []
+        for office in offices:
+            offices_list.append(dict(office))
+        
         return {
             'jsonrpc': '2.0',
-            'result': offices,
+            'result': offices_list,
             'id': id
         }
     
@@ -80,6 +85,17 @@ def api():
             cur.execute('SELECT tenant FROM offices WHERE number = ?', (office_number,))
             
         office = cur.fetchone()
+        
+        if not office:
+            db_close(conn, cur)
+            return {
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 3,
+                    'message': 'Office not found'
+                },
+                'id': id
+            }
         
         if office['tenant']:
             db_close(conn, cur)
@@ -119,47 +135,55 @@ def api():
         
         if not office:
             db_close(conn, cur)
+            return {
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 3,
+                    'message': 'Office not found'
+                },
+                'id': id
+            }
+
+        if not office['tenant']:
+            db_close(conn, cur)
+            return {
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 4,
+                    'message': 'Office is not booked'
+                },
+                'id': id
+            }
+        
+        if office['tenant'] != login:
+            db_close(conn, cur)
+            return {
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 5,
+                    'message': 'You can only cancel your own booking'
+                },
+                'id': id
+            }
+        
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute('UPDATE offices SET tenant = %s WHERE number = %s', ('', office_number))
+        else:
+            cur.execute('UPDATE offices SET tenant = ? WHERE number = ?', ('', office_number))
+            
+        db_close(conn, cur)
         
         return {
             'jsonrpc': '2.0',
-            'error': {
-                'code': 3,
-                'message': 'Office not found'
-            },
+            'result': 'success',
             'id': id
         }
 
-    if not office['tenant']:
-        db_close(conn, cur)
-        return {
-            'jsonrpc': '2.0',
-            'error': {
-                'code': 4,
-                'message': 'Office is not booked'
-            },
-            'id': id
-        }
-    
-    if office['tenant'] != login:
-        db_close(conn, cur)
-        return {
-            'jsonrpc': '2.0',
-            'error': {
-                'code': 5,
-                'message': 'You can only cancel your own booking'
-            },
-            'id': id
-        }
-    
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute('UPDATE offices SET tenant = %s WHERE number = %s', ('', office_number))
-    else:
-        cur.execute('UPDATE offices SET tenant = ? WHERE number = ?', ('', office_number))
-        
-    db_close(conn, cur)
-    
     return {
         'jsonrpc': '2.0',
-        'result': 'success',
+        'error': {
+            'code': -32601,
+            'message': 'Method not found'
+        },
         'id': id
     }
