@@ -18,10 +18,11 @@ def main():
     return render_template('lab6/lab6.html')
 
 
-@lab6.route('/lab6/json-rpc-api/', methods = ['POST'])
+@lab6.route('/lab6/json-rpc-api/', methods=['POST'])
 def api():
     data = request.json
     id = data['id']
+    
     if data['method'] == 'info':
         return {
             'jsonrpc': '2.0',
@@ -40,7 +41,7 @@ def api():
             'id': id
         }
     
-    elif data['method'] == 'booking':
+    if data['method'] == 'booking':
         office_number = data['params']
         for office in offices:
             if office['number'] == office_number:
@@ -53,13 +54,61 @@ def api():
                         },
                         'id': id 
                     }
-
                 office['tenant'] = login
                 return {
                     'jsonrpc': '2.0',
-                    'error': {
-                        'code': -32601,
-                        'message': 'Method not found'
-                    },
+                    'result': 'success',
                     'id': id
                 }
+    
+    # ВАЖНО: cancellation должен быть на том же уровне, что и booking, а не внутри него
+    elif data['method'] == 'cancellation':
+        office_number = data['params']
+        
+        for office in offices:
+            if office['number'] == office_number:
+                if not office['tenant']:
+                    return {
+                        'jsonrpc': '2.0',
+                        'error': {
+                            'code': 4,
+                            'message': 'Office is not booked'
+                        },
+                        'id': id
+                    }
+                
+                if office['tenant'] != login:
+                    return {
+                        'jsonrpc': '2.0',
+                        'error': {
+                            'code': 5,
+                            'message': 'You can only cancel your own booking'
+                        },
+                        'id': id
+                    } 
+                
+                office['tenant'] = ""
+                return {
+                    'jsonrpc': '2.0',
+                    'result': 'success',
+                    'id': id
+                }
+        
+        # Если офис не найден
+        return {
+            'jsonrpc': '2.0',
+            'error': {
+                'code': 3,
+                'message': 'Office not found'
+            },
+            'id': id
+        }
+
+    return {
+        'jsonrpc': '2.0',
+        'error': {
+            'code': -32601,
+            'message': 'Method not found'
+        },
+        'id': id
+    }
