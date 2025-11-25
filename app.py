@@ -5,6 +5,7 @@ from lab2 import lab2
 from lab3 import lab3
 from lab4 import lab4
 from lab5 import lab5
+from lab5 import lab6
 import datetime
 
 app = Flask(__name__)
@@ -17,6 +18,7 @@ app.register_blueprint(lab2)
 app.register_blueprint(lab3)
 app.register_blueprint(lab4)
 app.register_blueprint(lab5)
+app.register_blueprint(lab6)
 
 
 
@@ -34,6 +36,7 @@ def index():
                     <div><a href="/lab3">Лабораторная работа №3</a></div>
                     <div><a href="/lab4">Лабораторная работа №4</a></div>
                     <div><a href="/lab5">Лабораторная работа №5</a></div>
+                    <div><a href="/lab6">Лабораторная работа №6</a></div>
                 <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
           </body>
         </html>'''
@@ -52,6 +55,7 @@ def a():
                     <div><a href="/lab3">Лабораторная работа №3</a></div>
                     <div><a href="/lab4">Лабораторная работа №4</a></div>
                     <div><a href="/lab5">Лабораторная работа №5</a></div>
+                    <div><a href="/lab6">Лабораторная работа №6</a></div>
                 <footer>Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025</footer>
           </body>
         </html>'''
