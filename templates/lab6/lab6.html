@@ -152,4 +152,98 @@ document.addEventListener('DOMContentLoaded', function() {
         <ul class="spis" id="office-list"></ul>
     </div>
     <div class="login-form login-container" id="total-cost"></div>
+
+
+
+<style>
+.login-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.spis {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    color: #495057;
+}
+
+.btn {
+    padding: 6px 12px;
+    border: 1px solid #6c757d;
+    border-radius: 4px;
+    background: white;
+    color: #495057;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background: #e9ecef;
+    border-color: #495057;
+}
+
+.btn2 {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.btn2:hover {
+    background: #28a745;
+    color: white;
+}
+
+.btn3 {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.btn3:hover {
+    background: #dc3545;
+    color: white;
+}
+
+#total-cost {
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #495057;
+    margin-top: 20px;
+}
+
+#total-cost h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+h2 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #212529;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+</style>
 {% endblock %}
