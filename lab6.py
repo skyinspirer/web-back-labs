@@ -53,7 +53,6 @@ def api():
         offices = cur.fetchall()
         db_close(conn, cur)
 
-        # Конвертируем в обычный словарь для JSON сериализации
         offices_list = []
         for office in offices:
             offices_list.append(dict(office))
