@@ -10,7 +10,7 @@ lab6 = Blueprint('lab6', __name__)
 
 offices = []
 for i in range(1, 11):
-    offices.append({"number": i, "tenant": ""})
+    offices.append({"number": i, "tenant": "", "price":1000})
 
 
 @lab6.route("/lab6/")
@@ -61,7 +61,6 @@ def api():
                     'id': id
                 }
     
-    # ВАЖНО: cancellation должен быть на том же уровне, что и booking, а не внутри него
     elif data['method'] == 'cancellation':
         office_number = data['params']
         

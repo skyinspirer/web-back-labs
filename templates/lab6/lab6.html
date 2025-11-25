@@ -24,25 +24,40 @@ function getOfficeList() {
         const ul = document.getElementById('office-list');
         ul.innerHTML = '';
 
+        let totalCost = 0;
+
         for(let i = 0; i < office_list.length; i++) {
             const office = office_list[i];
             const li = document.createElement('li');
-            li.innerText = `${office.number}: ${office.tenant || 'свободен'}`;
+            li.className = 'li';
+            li.innerText = `${office.number}: ${office.tenant || 'Свободен'}`;
 
             if (!office.tenant) {
                 const bookingButton = document.createElement('button');
+                bookingButton.className = 'btn btn2';
                 bookingButton.innerText = 'зарезервировать';
                 bookingButton.onclick = function() {booking(office.number)};
                 li.appendChild(bookingButton);
             } else {
                 const cancellationButton = document.createElement('button');
+                cancellationButton.className = 'btn btn3';
                 cancellationButton.innerText = 'освободить';
                 cancellationButton.onclick = function() {cancellation(office.number)};
                 li.appendChild(cancellationButton);
+
+                totalCost += office.price;
             }
 
             ul.appendChild(li);
         }
+
+        let totalDiv = document.getElementById('total-cost');
+        if(!totalDiv) {
+            totalDiv = document.createElement('div');
+            totalDiv.id = 'total-cost';
+            document.body.appendChild(totalDiv);
+        }
+        totalDiv.innerHTML = `<h3>Общая стоимость аренды: ${totalCost} руб.</h3>`;
     });
 }
 
@@ -130,10 +145,11 @@ document.addEventListener('DOMContentLoaded', function() {
     getOfficeList();
 });
 </script>
-</script>
 {% endblock %}
 
 {% block main %}
-    <h2>Список кабинетов</h2>
-    <ul id="office-list"></ul>
+    <div class="login-form login-container">
+        <ul class="spis" id="office-list"></ul>
+    </div>
+    <div class="login-form login-container" id="total-cost"></div>
 {% endblock %}
