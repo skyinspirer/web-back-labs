@@ -60,7 +60,6 @@ def api():
         return {
             'jsonrpc': '2.0',
             'result': offices_list,
-            'user_login': session.get('login'),
             'id': id
         }
     
