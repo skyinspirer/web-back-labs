@@ -60,6 +60,7 @@ def api():
         return {
             'jsonrpc': '2.0',
             'result': offices_list,
+            'user_login': session.get('login'),
             'id': id
         }
     
@@ -74,7 +75,7 @@ def api():
             'id': id
         }
     
-    elif data['method'] == 'booking':
+    elif data['method'] == 'booking': # бронирование 
         office_number = data['params']
         conn, cur = db_connect()
         
@@ -120,7 +121,7 @@ def api():
             'id': id
         }
     
-    elif data['method'] == 'cancellation':
+    elif data['method'] == 'cancellation': #освобождение
         office_number = data['params']
         
         conn, cur = db_connect()

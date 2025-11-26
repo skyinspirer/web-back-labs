@@ -45,7 +45,9 @@ function getOfficeList() {
                 cancellationButton.onclick = function() {cancellation(office.number)};
                 li.appendChild(cancellationButton);
 
-                totalCost += office.price;
+                if (office.tenant === userLogin) {
+                    totalCost += office.price;
+                }
             }
 
             ul.appendChild(li);
