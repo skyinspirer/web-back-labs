@@ -14,9 +14,11 @@ function fillFilmList() {
             let tdYear = document.createElement('td');
             let tdActions = document.createElement('td');
 
-            tdTitle.innerText = films[i].title == films[i].title_ru ? '' : films[i].title;
             tdTitleRus.innerText = films[i].title_ru;
+            tdTitle.innerText = films[i].title;
             tdYear.innerText = films[i].year;
+            tdTitle.style.fontStyle = 'italic';
+            tdTitle.style.color = 'gray';
 
             let editButton = document.createElement('button');
             editButton.innerText = 'редактировать';
@@ -33,8 +35,8 @@ function fillFilmList() {
             tdActions.append(editButton);
             tdActions.append(delButton);
 
-            tr.append(tdTitle);
             tr.append(tdTitleRus);
+            tr.append(tdTitle);
             tr.append(tdYear);
             tr.append(tdActions);
 

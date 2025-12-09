@@ -5,74 +5,311 @@
 {% block script %}
 <script src="{{ url_for('static', filename='lab7/main.js') }}"></script>
 <style>
-.modal {
-    display: none;
-    z-index: 100;
-    box-shadow: 3px 3px 5px black;
-    background-color: white;
-    width: 400px;
-    left: 50%;
-    top: 220px;
-    margin-left: -200px;
-    position: absolute;
-    padding: 20px;
-}
+
 .error-message {
     color: red;
     font-weight: bold;
+}
+.films-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.films-container h1 {
+    color: #2c3e50;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 2.5rem;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 15px;
+}
+
+.table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.films-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.films-table thead {
+    background:  #3498db;
+    color: white;
+}
+
+.films-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    border: none;
+}
+
+.films-table tbody tr {
+    border-bottom: 1px solid #e1e1e1;
+    transition: background-color 0.3s ease;
+}
+
+
+.films-table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-primary {
+    background: #2980b9;
+    color: white;
+}
+
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+
+.btn-danger {
+    background: #e74c3c;
+    color: white;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+
+.btn-icon {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: modalSlideIn 0.3s ease;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 2px solid #f1f1f1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #3498db;
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 2px solid #f1f1f1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.hint {
+    font-size: 12px;
+    color: #7f8c8d;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+.form-required-note {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 10px;
+    text-align: right;
 }
 </style>
 {% endblock %}
 
 {% block main %}
+<div class="films-container">
 
-<h1>Список фильмов</h1>
+    <h1>Список фильмов</h1>
 
-    <table>
-        <thead>
-            <tr>
-                <th colspan="2">Название</th>
-                <th>Год</th>
-                <th>Действие</th>
-            </tr>
-        </thead>
-        <tbody id="film-list"></tbody>
-    </table>
-
-    <script>
-        fillFilmList();
-    </script>
-
-    <div>
-        <button onclick="addFilm()">Добавить фильм</button>
+    <div class="table-container">
+        <table class="films-table">
+            <thead>
+                <tr>
+                    <th>Название на русском</th>
+                    <th>Оригинальное название</th>
+                    <th>Год выпуска</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="film-list"></tbody>
+        </table>
     </div>
 
+    <div class="actions">
+        <button class="btn btn-primary" onclick="addFilm()">
+            <span class="btn-icon">+</span> Добавить фильм
+        </button>
+    </div>
+
+    <div class="modal-overlay" onclick="cancel()"></div>
     <div class="modal">
-        <input type="hidden" id="id">
-        <label>
-            Название фильма на русском:
-            <input type="text" id="title-ru">
-        </label><br>
+        <div class="modal-header">
+            <h2 id="modal-title">Добавить фильм</h2>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="id">
+            
+            <div class="form-group">
+                <label for="title-ru">
+                    Название фильма на русском 
+                </label>
+                <input type="text" id="title-ru" class="form-control" 
+                       placeholder="Введите название на русском языке">
+            </div>
 
-        <label>
-            Название фильма на оригинальном языке
-            <i>(если фильм русский, то оставьте поле пустым):</i>
-            <input type="text" id="title">
-        </label><br>
+            <div class="form-group">
+                <label for="title">
+                    Оригинальное название
+                    <span class="hint">(оставьте пустым, если фильм русский)</span>
+                </label>
+                <input type="text" id="title" class="form-control" 
+                       placeholder="Введите оригинальное название">
+            </div>
 
-        <label>
-            Год выпуска:
-            <input type="number" id="year">
-        </label><br>
+            <div class="form-group">
+                <label for="year">
+                    Год выпуска 
+                </label>
+                <input type="number" id="year" class="form-control" 
+                       min="1888" max="2024" placeholder="2024">
+            </div>
 
-        <label>
-            Описание:
-            <textarea id="description"></textarea>
-            <div id="description-error" class="error-message"></div>
-        </label>
+            <div class="form-group">
+                <label for="description">
+                    Описание 
+                </label>
+                <textarea id="description" class="form-control" 
+                          rows="4" placeholder="Введите описание фильма..."></textarea>
+                <div id="description-error" class="error-message"></div>
+            </div>
+        </div>
 
-        <button onclick="sendFilm()">ОК</button>
-        <button onclick="cancel()">Отмена</button>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="cancel()">Отмена</button>
+            <button class="btn btn-primary" onclick="sendFilm()">Сохранить</button>
+        </div>
     </div>
+</div>
+
+<script>
+    fillFilmList();
+</script>
     
 {% endblock %}
