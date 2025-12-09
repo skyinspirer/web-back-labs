@@ -6,7 +6,6 @@ from os import path
 
 lab7 = Blueprint('lab7', __name__)
 
-
 def db_connect():
     """Подключение к базе данных (PostgreSQL или SQLite)"""
     if current_app.config['DB_TYPE'] == 'postgres':
@@ -54,7 +53,7 @@ def get_films():
     for film in films:
         films_list.append(dict(film))
     
-    return films_list
+    return jsonify(films_list)  # ВАЖНО: добавить jsonify
 
 
 @lab7.route('/lab7/rest-api/films/<int:id>', methods=['GET'])
@@ -101,30 +100,32 @@ def del_film(id):
 
 @lab7.route('/lab7/rest-api/films/<int:id>', methods=['PUT'])
 def put_film(id):
-        
     film = request.get_json()
     errors = {}
     
-    if film['title_ru'] == '':
+    # Проверка обязательных полей
+    if film.get('title_ru', '') == '':
         errors['title_ru'] = 'Русское название обязательно для заполнения'
     
     if film.get('title') == '':
-        film['title'] = film['title_ru']
+        film['title'] = film.get('title_ru', '')
 
+    # Проверка года
     year = film.get('year')
-    if year is None or year == '':
+    year_int = None
+    if year is None or str(year).strip() == '':
         errors['year'] = 'Год обязателен для заполнения'
     else:
-    
         try:
             year_int = int(year)
             if year_int < 1895:
                 errors['year'] = 'Год не может быть раньше 1895'
             elif year_int > 2025:
                 errors['year'] = 'Год не может быть больше 2025'
-        except:
+        except (ValueError, TypeError):
             errors['year'] = 'Год должен быть числом'
 
+    # Проверка описания
     description = film.get('description', '')
     if description == '':
         errors['description'] = 'Заполните описание'
@@ -132,10 +133,11 @@ def put_film(id):
         errors['description'] = 'Описание не должно превышать 2000 символов'
 
     if errors:
-        return errors, 400
+        return jsonify(errors), 400  # ВАЖНО: добавить jsonify
 
     conn, cur = db_connect()
 
+    # Проверка существования фильма
     if current_app.config['DB_TYPE'] == 'postgres':
         cur.execute("SELECT id FROM films WHERE id = %s;", (id,))
     else:
@@ -145,6 +147,7 @@ def put_film(id):
         db_close(conn, cur)
         abort(404)
     
+    # Обновление фильма
     if current_app.config['DB_TYPE'] == 'postgres':
         cur.execute("""
             UPDATE films 
@@ -158,6 +161,7 @@ def put_film(id):
             WHERE id = ?;
         """, (film['title'], film['title_ru'], year_int, description, id))
     
+    # Получение обновленного фильма
     if current_app.config['DB_TYPE'] == 'postgres':
         cur.execute("SELECT * FROM films WHERE id = %s;", (id,))
     else:
@@ -175,25 +179,29 @@ def add_film():
     film = request.get_json()
     errors = {}
 
-    
-    if film['title_ru'] == '':
+    # Проверка обязательных полей
+    if film.get('title_ru', '') == '':
         errors['title_ru'] = 'Русское название обязательно для заполнения'
     
-
     if film.get('title') == '':
-        film['title'] = film['title_ru']
+        film['title'] = film.get('title_ru', '')
 
-    
+    # Проверка года
     year = film.get('year')
-    if year is None or year == '':
+    year_int = None
+    if year is None or str(year).strip() == '':
         errors['year'] = 'Год обязателен для заполнения'
     else:
-        year_int = int(year)
-        if year_int < 1895:
-            errors['year'] = 'Год не может быть раньше 1895'
-        elif year_int > 2025:
-            errors['year'] = 'Год не может быть больше 2025'
+        try:
+            year_int = int(year)
+            if year_int < 1895:
+                errors['year'] = 'Год не может быть раньше 1895'
+            elif year_int > 2025:
+                errors['year'] = 'Год не может быть больше 2025'
+        except (ValueError, TypeError):
+            errors['year'] = 'Год должен быть числом'
 
+    # Проверка описания
     description = film.get('description', '')
     if description == '':
         errors['description'] = 'Заполните описание'
@@ -202,9 +210,10 @@ def add_film():
 
     if errors:
         return jsonify(errors), 400
-    
+
     conn, cur = db_connect()
     
+    # Создание нового фильма
     if current_app.config['DB_TYPE'] == 'postgres':
         cur.execute("""
             INSERT INTO films (title, title_ru, year, description) 
