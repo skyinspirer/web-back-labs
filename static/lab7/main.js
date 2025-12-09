@@ -6,7 +6,7 @@ function fillFilmList() {
     .then(function (films) {
         let tbody = document.getElementById('film-list');
         tbody.innerHTML = '';
-        for(let i = 0; i<films.length; i++) {
+        for(let i = 0; i < films.length; i++) {
             let tr = document.createElement('tr');
 
             let tdTitle = document.createElement('td');
@@ -22,16 +22,16 @@ function fillFilmList() {
 
             let editButton = document.createElement('button');
             editButton.innerText = 'редактировать';
-            editButton.className = 'btn btn-success';
+            editButton.style.backgroundColor = 'rgba(255, 203, 105, 0.836)';
             editButton.onclick = function() {
-                editFilm(i);
+                editFilm(films[i].id);  
             };
 
             let delButton = document.createElement('button');
             delButton.innerText = 'удалить';
-            delButton.className = 'btn btn-danger';
+            delButton.style.backgroundColor = 'rgb(255, 154, 154)';
             delButton.onclick = function() {
-                deleteFilm(i, films[i].title_ru);
+                deleteFilm(films[i].id, films[i].title_ru);  
             }
 
             tdActions.append(editButton);
@@ -63,32 +63,25 @@ function editFilm(id) {
         return data.json();
     })
     .then(function (film) {
-        document.getElementById('id').value = id;
+        document.getElementById('id').value = film.id; 
         document.getElementById('title').value = film.title;
         document.getElementById('title-ru').value = film.title_ru;
         document.getElementById('year').value = film.year;
         document.getElementById('description').value = film.description;
         document.getElementById('description-error').innerText = '';
-        
-        let titleRuError = document.getElementById('title-ru-error');
-        if (titleRuError) titleRuError.innerText = '';
-        
-        let yearError = document.getElementById('year-error');
-        if (yearError) yearError.innerText = '';
-        
-        document.getElementById('modal-title').innerText = 'Редактировать фильм';
         showModal();
     })
 }
 
 function showModal() {
-    document.querySelector('.modal').style.display = 'block';
-    document.querySelector('.modal-overlay').style.display = 'block';
+    document.querySelector('div.modal').style.display = 'block'; 
+    document.getElementById('description-error').innerText = '';
+    document.getElementById('title-ru-error').innerText = '';
+    document.getElementById('year-error').innerText = '';
 }
 
 function hideModal() {
-    document.querySelector('.modal').style.display = 'none';
-    document.querySelector('.modal-overlay').style.display = 'none';
+    document.querySelector('div.modal').style.display = 'none';
 }
 
 function cancel() {
@@ -102,14 +95,8 @@ function addFilm() {
     document.getElementById('year').value = '';
     document.getElementById('description').value = '';
     document.getElementById('description-error').innerText = '';
-    
-    let titleRuError = document.getElementById('title-ru-error');
-    if (titleRuError) titleRuError.innerText = '';
-    
-    let yearError = document.getElementById('year-error');
-    if (yearError) yearError.innerText = '';
-    
-    document.getElementById('modal-title').innerText = 'Добавить фильм';
+    document.getElementById('title-ru-error').innerText = '';
+    document.getElementById('year-error').innerText = '';
     showModal();
 }
 
@@ -126,12 +113,8 @@ function sendFilm() {
     const method = id === '' ? 'POST' : 'PUT';
 
     document.getElementById('description-error').innerText = '';
-    
-    let titleRuError = document.getElementById('title-ru-error');
-    if (titleRuError) titleRuError.innerText = '';
-    
-    let yearError = document.getElementById('year-error');
-    if (yearError) yearError.innerText = '';
+    document.getElementById('title-ru-error').innerText = '';
+    document.getElementById('year-error').innerText = '';
 
     fetch(url, {
         method: method,
@@ -156,7 +139,7 @@ function sendFilm() {
                 titleRuError = document.createElement('div');
                 titleRuError.id = 'title-ru-error';
                 titleRuError.className = 'error-message';
-                document.getElementById('title-ru').parentNode.appendChild(titleRuError);
+                document.getElementById('title-ru').appendChild(titleRuError);
             }
             titleRuError.innerText = errors.title_ru;
         }
@@ -166,7 +149,7 @@ function sendFilm() {
                 yearError = document.createElement('div');
                 yearError.id = 'year-error';
                 yearError.className = 'error-message';
-                document.getElementById('year').parentNode.appendChild(yearError);
+                document.getElementById('year').appendChild(yearError);
             }
             yearError.innerText = errors.year;
         }
