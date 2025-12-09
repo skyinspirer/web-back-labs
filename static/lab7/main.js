@@ -6,7 +6,7 @@ function fillFilmList() {
     .then(function (films) {
         let tbody = document.getElementById('film-list');
         tbody.innerHTML = '';
-        for(let i = 0; i < films.length; i++) {
+        for(let i = 0; i<films.length; i++) {
             let tr = document.createElement('tr');
 
             let tdTitle = document.createElement('td');
@@ -22,14 +22,14 @@ function fillFilmList() {
 
             let editButton = document.createElement('button');
             editButton.innerText = 'редактировать';
-            editButton.style.backgroundColor = 'rgba(255, 203, 105, 0.836)';
+            editButton.className = 'btn btn-success';
             editButton.onclick = function() {
-                editFilm(films[i].id);  
+                editFilm(films[i].id);
             };
 
             let delButton = document.createElement('button');
             delButton.innerText = 'удалить';
-            delButton.style.backgroundColor = 'rgb(255, 154, 154)';
+            delButton.className = 'btn btn-danger';
             delButton.onclick = function() {
                 deleteFilm(films[i].id, films[i].title_ru);  
             }
@@ -69,19 +69,21 @@ function editFilm(id) {
         document.getElementById('year').value = film.year;
         document.getElementById('description').value = film.description;
         document.getElementById('description-error').innerText = '';
+        
+        
+        document.getElementById('modal-title').innerText = 'Редактировать фильм';
         showModal();
     })
 }
 
 function showModal() {
-    document.querySelector('div.modal').style.display = 'block'; 
-    document.getElementById('description-error').innerText = '';
-    document.getElementById('title-ru-error').innerText = '';
-    document.getElementById('year-error').innerText = '';
+    document.querySelector('.modal').style.display = 'block';
+    document.querySelector('.modal-overlay').style.display = 'block';
 }
 
 function hideModal() {
-    document.querySelector('div.modal').style.display = 'none';
+    document.querySelector('.modal').style.display = 'none';
+    document.querySelector('.modal-overlay').style.display = 'none';
 }
 
 function cancel() {
@@ -95,8 +97,14 @@ function addFilm() {
     document.getElementById('year').value = '';
     document.getElementById('description').value = '';
     document.getElementById('description-error').innerText = '';
-    document.getElementById('title-ru-error').innerText = '';
-    document.getElementById('year-error').innerText = '';
+    
+    let titleRuError = document.getElementById('title-ru-error');
+    if (titleRuError) titleRuError.innerText = '';
+    
+    let yearError = document.getElementById('year-error');
+    if (yearError) yearError.innerText = '';
+    
+    document.getElementById('modal-title').innerText = 'Добавить фильм';
     showModal();
 }
 
@@ -113,8 +121,12 @@ function sendFilm() {
     const method = id === '' ? 'POST' : 'PUT';
 
     document.getElementById('description-error').innerText = '';
-    document.getElementById('title-ru-error').innerText = '';
-    document.getElementById('year-error').innerText = '';
+    
+    let titleRuError = document.getElementById('title-ru-error');
+    if (titleRuError) titleRuError.innerText = '';
+    
+    let yearError = document.getElementById('year-error');
+    if (yearError) yearError.innerText = '';
 
     fetch(url, {
         method: method,
@@ -139,7 +151,7 @@ function sendFilm() {
                 titleRuError = document.createElement('div');
                 titleRuError.id = 'title-ru-error';
                 titleRuError.className = 'error-message';
-                document.getElementById('title-ru').appendChild(titleRuError);
+                document.getElementById('title-ru').parentNode.appendChild(titleRuError);
             }
             titleRuError.innerText = errors.title_ru;
         }
@@ -149,7 +161,7 @@ function sendFilm() {
                 yearError = document.createElement('div');
                 yearError.id = 'year-error';
                 yearError.className = 'error-message';
-                document.getElementById('year').appendChild(yearError);
+                document.getElementById('year').parentNode.appendChild(yearError);
             }
             yearError.innerText = errors.year;
         }
