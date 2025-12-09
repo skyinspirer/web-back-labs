@@ -18,7 +18,6 @@ function fillFilmList() {
             tdTitleOrig.innerText = films[i].title;
             tdYear.innerText = films[i].year;
             
-            // Добавляем стиль курсива и серый цвет
             tdTitleOrig.style.fontStyle = 'italic';
             tdTitleOrig.style.color = '#666';
 
@@ -115,7 +114,6 @@ function sendFilm() {
         description: document.getElementById('description').value
     }
 
-    // Очищаем ошибку перед отправкой
     document.getElementById('description-error').innerText = '';
 
     const url = id === '' ? '/lab7/rest-api/films/' : `/lab7/rest-api/films/${id}`;
@@ -168,7 +166,7 @@ function editFilm(id) {
     });
 }
 
-// Инициализация при загрузке страницы
+
 document.addEventListener('DOMContentLoaded', function() {
     fillFilmList();
 });
