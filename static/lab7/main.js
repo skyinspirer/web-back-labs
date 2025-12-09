@@ -1,50 +1,46 @@
 function fillFilmList() {
-    fetch('/lab7/rest-api/films/')
+    fetch(`/lab7/rest-api/films/`)
     .then(function (data) {
         return data.json();
     })
     .then(function (films) {
         let tbody = document.getElementById('film-list');
         tbody.innerHTML = '';
-        for(let i = 0; i<films.length; i++) {
+        for(let i = 0; i < films.length; i++) {
             let tr = document.createElement('tr');
 
-            let tdTitle = document.createElement('td');
-            let tdTitleRus = document.createElement('td');
+            let tdTitleRu = document.createElement('td');
+            let tdTitleOrig = document.createElement('td');
             let tdYear = document.createElement('td');
             let tdActions = document.createElement('td');
 
-            tdTitleRus.innerText = films[i].title_ru;
-            tdTitle.innerText = films[i].title;
+            tdTitleRu.innerText = films[i].title_ru;
+            tdTitleOrig.innerText = films[i].title;
+            tdTitleOrig.style.fontStyle = 'italic';
+            tdTitleOrig.style.color = '#666';
             tdYear.innerText = films[i].year;
-            tdTitle.style.fontStyle = 'italic';
-            tdTitle.style.color = 'gray';
 
             let editButton = document.createElement('button');
             editButton.innerText = 'редактировать';
             editButton.className = 'btn btn-success';
-            // Исправлено: создаем замыкание для сохранения значения id
-            editButton.addEventListener('click', (function(filmId) {
-                return function() {
-                    editFilm(filmId);
-                };
-            })(films[i].id));
+            // ИСПРАВЛЕНО: передаем реальный ID фильма, а не индекс
+            editButton.onclick = function() {
+                editFilm(films[i].id);  // Используем films[i].id вместо i
+            };
 
             let delButton = document.createElement('button');
             delButton.innerText = 'удалить';
             delButton.className = 'btn btn-danger';
-            // Исправлено: создаем замыкание для сохранения значений id и title
-            delButton.addEventListener('click', (function(filmId, filmTitle) {
-                return function() {
-                    deleteFilm(filmId, filmTitle);
-                };
-            })(films[i].id, films[i].title_ru));
+            // ИСПРАВЛЕНО: передаем реальный ID фильма, а не индекс
+            delButton.onclick = function() {
+                deleteFilm(films[i].id, films[i].title_ru);  // Используем films[i].id вместо i
+            };
 
             tdActions.append(editButton);
-            tdActions.append(delButton);
+            tdActions.append(delButton);  
 
-            tr.append(tdTitleRus);
-            tr.append(tdTitle);
+            tr.append(tdTitleRu);
+            tr.append(tdTitleOrig);
             tr.append(tdYear);
             tr.append(tdActions);
 
@@ -58,40 +54,9 @@ function deleteFilm(id, title) {
         return;
 
     fetch(`/lab7/rest-api/films/${id}`, {method: 'DELETE'})
-        .then(function (response) {
-            if (response.ok) {
-                fillFilmList(); // Обновляем список после удаления
-            } else {
-                alert('Ошибка при удалении фильма');
-            }
-        })
-        .catch(function (error) {
-            alert('Ошибка сети при удалении фильма');
+        .then(function () {
+            fillFilmList();
         });
-}
-
-function editFilm(id) {
-    fetch(`/lab7/rest-api/films/${id}`)
-    .then(function (response) {
-        if (!response.ok) {
-            throw new Error('Ошибка загрузки фильма');
-        }
-        return response.json();
-    })
-    .then(function (film) {
-        document.getElementById('id').value = film.id; 
-        document.getElementById('title').value = film.title || '';
-        document.getElementById('title-ru').value = film.title_ru;
-        document.getElementById('year').value = film.year;
-        document.getElementById('description').value = film.description || '';
-        document.getElementById('description-error').innerText = '';
-        
-        document.getElementById('modal-title').innerText = 'Редактировать фильм';
-        showModal();
-    })
-    .catch(function (error) {
-        alert('Не удалось загрузить данные фильма');
-    });
 }
 
 function showModal() {
@@ -115,8 +80,6 @@ function addFilm() {
     document.getElementById('year').value = '';
     document.getElementById('description').value = '';
     document.getElementById('description-error').innerText = '';
-    
-    document.getElementById('modal-title').innerText = 'Добавить фильм';
     showModal();
 }
 
@@ -129,6 +92,8 @@ function sendFilm() {
         description: document.getElementById('description').value
     }
 
+    document.getElementById('description-error').innerText = '';
+
     const url = id === '' ? '/lab7/rest-api/films/' : `/lab7/rest-api/films/${id}`;
     const method = id === '' ? 'POST' : 'PUT';
 
@@ -138,19 +103,31 @@ function sendFilm() {
         body: JSON.stringify(film)
     })
     .then(function(resp) {
-        if(resp.ok) {
+        if (resp.ok) {
             fillFilmList();
             hideModal();
-        } else {
-            return resp.json();
+            return {};    
         }
+        return resp.json();
     })
-    .then(function(errors) {
-        if(errors && errors.description) {
+    .then(function (errors) {
+        if(errors && errors.description)
             document.getElementById('description-error').innerText = errors.description;
-        }
+    });
+}
+
+function editFilm(id) {
+    fetch(`/lab7/rest-api/films/${id}`)
+    .then(function (data) {
+        return data.json();
     })
-    .catch(function(error) {
-        alert('Ошибка при сохранении фильма');
+    .then(function (film) {
+        document.getElementById('id').value = id;
+        document.getElementById('title').value = film.title;
+        document.getElementById('title-ru').value = film.title_ru;
+        document.getElementById('year').value = film.year;
+        document.getElementById('description').value = film.description;
+        document.getElementById('description-error').innerText = '';
+        showModal();
     });
 }
