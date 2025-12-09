@@ -1,4 +1,4 @@
-from flask import Blueprint, url_for, request, redirect, abort, render_template, make_response, session, jsonify
+from flask import Blueprint, url_for, request, redirect, abort, render_template, make_response, session
 import datetime
 lab7 = Blueprint('lab7', __name__)
 
@@ -55,7 +55,7 @@ def get_film(id):
     if id < 0 or id >= len(films):
         abort(404)
 
-    return jsonify(films)
+    return films[id]
 
 
 @lab7.route('/lab7/rest-api/films/<int:id>', methods=['DELETE'])
