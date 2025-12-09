@@ -73,25 +73,81 @@ def put_film(id):
         abort(404)
         
     film = request.get_json()
-    if film['description'] == '':
-        return {'description': 'Заполните описание'}, 400
+    errors = {}
     
-    if film['title'] == '':
+    # Проверка title_ru
+    if not film.get('title_ru'):
+        errors['title_ru'] = 'Русское название обязательно для заполнения'
+    
+    # Если оригинальное название пустое, используем русское
+    if not film.get('title') and film.get('title_ru'):
         film['title'] = film['title_ru']
+    
+    # Проверка года
+    year = film.get('year')
+    if year is None:
+        errors['year'] = 'Год обязателен для заполнения'
+    else:
+        try:
+            year_int = int(year)
+            if year_int < 1895:
+                errors['year'] = 'Год не может быть раньше 1895'
+            elif year_int > 2025:
+                errors['year'] = 'Год не может быть больше 2025'
+        except (ValueError, TypeError):
+            errors['year'] = 'Год должен быть числом'
+    
+    # Проверка описания
+    description = film.get('description', '')
+    if not description:
+        errors['description'] = 'Заполните описание'
+    elif len(description) > 2000:
+        errors['description'] = 'Описание не должно превышать 2000 символов'
+    
+    if errors:
+        return errors, 400
 
     films[id] = film
-    return films[id]
+    return films[id], 200
 
 
 @lab7.route('/lab7/rest-api/films/', methods=['POST'])
 def add_film():
     film = request.get_json()
-    if film['description'] == '':
-        return {'description': 'Заполните описание'}, 400
+    errors = {}
+
+    # Проверка title_ru
+    if not film.get('title_ru'):
+        errors['title_ru'] = 'Русское название обязательно для заполнения'
     
-    if film['title'] == '':
+    # Если оригинальное название пустое, используем русское
+    if not film.get('title') and film.get('title_ru'):
         film['title'] = film['title_ru']
     
+    # Проверка года
+    year = film.get('year')
+    if year is None:
+        errors['year'] = 'Год обязателен для заполнения'
+    else:
+        try:
+            year_int = int(year)
+            if year_int < 1895:
+                errors['year'] = 'Год не может быть раньше 1895'
+            elif year_int > 2025:
+                errors['year'] = 'Год не может быть больше 2025'
+        except (ValueError, TypeError):
+            errors['year'] = 'Год должен быть числом'
+    
+    # Проверка описания
+    description = film.get('description', '')
+    if not description:
+        errors['description'] = 'Заполните описание'
+    elif len(description) > 2000:
+        errors['description'] = 'Описание не должно превышать 2000 символов'
+    
+    if errors:
+        return errors, 400
+    
     films.append(film)
-    new_id = len(films) -1
+    new_id = len(films) - 1
     return str(new_id), 201
