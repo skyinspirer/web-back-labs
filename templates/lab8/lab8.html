@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Лабораторная работа 8{% endblock %}
+
+{% block main %}
+    <h1>Flask и ORM</h1>
+    <div>
+        Тема лабораторной работы - Flask и ORM. Список сделанных страниц:
+    </div>
+    <ol class='text'>
+        <li><a href="/lab8/register">Регистрация</a>
+        <li><a href="/lab8/create">Создание статьи</a>
+        <li><a href="/lab8/login">Вход</a>
+        <li><a href="/lab8/articles">Список статей</a>
+    </ol>
+{% endblock %}
