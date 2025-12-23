@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Цеунов Матвей Евгеньевич. {% block number_lab %}{% endblock %}
+    </title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lab8/style.css') }}">
+    <style>
+        body, main{
+            {% if request.cookies.get('color') %}
+            color: {{ request.cookies.get('color') }};
+            {% endif %}
+            {% if request.cookies.get('bg_color') %}
+            background-color: {{ request.cookies.get('bg_color') }};
+            {% endif %}
+            {% if request.cookies.get('font_size') %}
+            font-size: {{ request.cookies.get('font_size') }};
+            {% endif %}
+            {% if request.cookies.get('cursor') %}
+            cursor: {{ request.cookies.get('cursor') }};
+            {% endif %}
+        }
+    </style>
+    {% block script %}{% endblock %}
+</head>
+<body>
+    <header>
+        WEB-Программирование, часть 2. {{ self.number_lab() }}
+    </header>
+
+    <main>
+        <a href="/">Список Лабораторных работ</a>
+        {% block main %}{% endblock %}
+    </main>
+
+    <footer>
+        Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025
+    </footer>
+</body>
+</html>
+
