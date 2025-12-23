@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Расчетно-графическое задание{% endblock %}
+
+{% block main %}
+    <div style="text-align: right; padding: 10px; background-color: #f0f0f0;">
+        <strong>Студент: Иванов Иван Иванович</strong><br>
+        <strong>Группа: ПИЖ-б-о-22-1</strong>
+    </div>
+
+    <h1>Корзина</h1>
+    
+    <div>
+        <a href="/rgz/">Назад к товарам</a> |
+        <a href="/rgz/logout">Выход</a>
+    </div>
+    
+    {% if cart_items %}
+        <div id="cart-items">
+            {% for item in cart_items %}
+            <div class="cart-item" style="border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 5px;">
+                <h3>{{ item.product.name }}</h3>
+                <p>Цена за шт.: {{ "%.2f"|format(item.product.price) }} руб.</p>
+                <p>Количество: 
+                    <input type="number" 
+                           id="quantity-{{ item.id }}" 
+                           value="{{ item.quantity }}" 
+                           min="1" 
+                           max="{{ item.product.stock + item.quantity }}"
+                           style="width: 60px;"
+                           onchange="updateCartItem({{ item.id }}, this.value)">
+                </p>
+                <p>Итого: {{ "%.2f"|format(item.product.price * item.quantity) }} руб.</p>
+                <button onclick="removeFromCart({{ item.id }})">Удалить</button>
+            </div>
+            {% endfor %}
+            
+            <div style="margin-top: 20px; font-size: 1.2em;">
+                <strong>Общая сумма: {{ "%.2f"|format(total) }} руб.</strong>
+            </div>
+            
+            <button onclick="checkout()" style="padding: 10px 20px; font-size: 1.1em; margin-top: 20px;">
+                Оформить заказ
+            </button>
+        </div>
+    {% else %}
+        <p>Ваша корзина пуста.</p>
+    {% endif %}
+
+    <script>
+    function updateCartItem(cartItemId, quantity) {
+        fetch('/rgz/api', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'update_cart_quantity',
+                params: {
+                    cart_item_id: cartItemId,
+                    quantity: parseInt(quantity)
+                },
+                id: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result && data.result.success) {
+                location.reload();
+            } else if (data.error) {
+                alert('Ошибка: ' + data.error.message);
+                location.reload();
+            }
+        });
+    }
+    
+    function removeFromCart(cartItemId) {
+        if (!confirm('Удалить товар из корзины?')) return;
+        
+        fetch('/rgz/api', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'remove_from_cart',
+                params: {
+                    cart_item_id: cartItemId
+                },
+                id: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result && data.result.success) {
+                location.reload();
+            } else if (data.error) {
+                alert('Ошибка: ' + data.error.message);
+            }
+        });
+    }
+    
+    function checkout() {
+        if (!confirm('Оформить заказ?')) return;
+        
+        fetch('/rgz/api', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'checkout',
+                params: {},
+                id: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result && data.result.success) {
+                alert('Заказ оформлен! Номер заказа: ' + data.result.order_id);
+                window.location.href = '/rgz/';
+            } else if (data.error) {
+                alert('Ошибка: ' + data.error.message);
+            }
+        });
+    }
+    </script>
+{% endblock %}
