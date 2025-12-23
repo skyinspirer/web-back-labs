@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Оформление заказа{% endblock %}
+
+{% block main %}
+    <h1>Оформление заказа</h1>
+    
+    <div id="checkout-container">
+        <p>Загрузка информации о заказе...</p>
+    </div>
+    
+    <div id="order-summary" class="order-summary">
+        <!-- Здесь будет отображаться сумма заказа -->
+    </div>
+    
+    <form id="checkout-form" class="checkout-form" onsubmit="processCheckout(event)">
+        <h3>Данные для доставки</h3>
+        
+        <div class="form-group">
+            <label for="name">ФИО:</label>
+            <input type="text" id="name" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="address">Адрес доставки:</label>
+            <textarea id="address" class="form-input" rows="3" required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="phone">Телефон:</label>
+            <input type="tel" id="phone" class="form-input" required pattern="[\+]\d{1}\s[\(]\d{3}[\)]\s\d{3}[\-]\d{2}[\-]\d{2}">
+            <small>Формат: +7 (XXX) XXX-XX-XX</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="payment">Способ оплаты:</label>
+            <select id="payment" class="form-select" required>
+                <option value="">Выберите способ оплаты</option>
+                <option value="cash">Наличными при получении</option>
+                <option value="card">Банковской картой онлайн</option>
+            </select>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">Подтвердить заказ</button>
+            <a href="/rgz/cart" class="btn btn-secondary">Вернуться в корзину</a>
+        </div>
+    </form>
+
+    <script>
+        function loadCheckoutInfo() {
+            // Загружаем корзину
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'get_cart',
+                    params: {},
+                    id: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('checkout-container');
+                
+                if (!data.result || data.result.length === 0) {
+                    container.innerHTML = `
+                        <div class="alert alert-warning">
+                            <p>Ваша корзина пуста</p>
+                            <a href="/rgz/" class="btn btn-primary">Перейти к покупкам</a>
+                        </div>
+                    `;
+                    document.getElementById('checkout-form').style.display = 'none';
+                    return;
+                }
+                
+                let html = '<h3>Состав заказа:</h3><ul class="order-items">';
+                
+                data.result.forEach(item => {
+                    const total = item.price * (item.quantity || 1);
+                    html += `
+                        <li>
+                            <strong>${item.name}</strong> 
+                            x ${item.quantity || 1} 
+                            = ${total} руб.
+                        </li>
+                    `;
+                });
+                
+                html += '</ul>';
+                container.innerHTML = html;
+                
+                // Загружаем общую сумму
+                loadOrderTotal();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('checkout-container').innerHTML = 
+                    '<p>Ошибка при загрузке информации о заказе</p>';
+            });
+        }
+        
+        function loadOrderTotal() {
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'get_cart_total',
+                    params: {},
+                    id: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result) {
+                    document.getElementById('order-summary').innerHTML = `
+                        <h3>Сумма заказа: ${data.result.total} руб.</h3>
+                        <p>Количество товаров: ${data.result.item_count}</p>
+                    `;
+                }
+            });
+        }
+        
+        function processCheckout(event) {
+            event.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                payment: document.getElementById('payment').value
+            };
+            
+            // Проверяем заполненность формы
+            if (!formData.name || !formData.address || !formData.phone || !formData.email || !formData.payment) {
+                alert('Пожалуйста, заполните все обязательные поля');
+                return;
+            }
+            
+            // Отправляем запрос на оформление заказа
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'checkout',
+                    params: {customer_info: formData},
+                    id: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result && data.result.success) {
+                    // Показываем подтверждение заказа
+                    document.getElementById('checkout-form').innerHTML = `
+                        <div class="alert alert-success">
+                            <h3>Заказ успешно оформлен!</h3>
+                            <p>Номер вашего заказа: ${data.result.order_details.order_id}</p>
+                            <p>Сумма заказа: ${data.result.order_details.total} руб.</p>
+                            <p>Наш менеджер свяжется с вами для подтверждения заказа.</p>
+                            <a href="/rgz/" class="btn btn-primary">Вернуться в магазин</a>
+                        </div>
+                    `;
+                    
+                    document.getElementById('checkout-container').innerHTML = '';
+                    document.getElementById('order-summary').innerHTML = '';
+                } else if (data.error) {
+                    alert('Ошибка при оформлении заказа: ' + data.error.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при обработке заказа');
+            });
+        }
+        
+        // Загружаем информацию при открытии страницы
+        document.addEventListener('DOMContentLoaded', loadCheckoutInfo);
+    </script>
+
+    <style>
+        .order-items {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .order-items li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .checkout-form {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+{% endblock %}

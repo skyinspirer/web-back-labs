@@ -1,135 +1,235 @@
 {% extends "base.html" %}
 
-{% block number_lab %}Расчетно-графическое задание{% endblock %}
+{% block number_lab %}Корзина{% endblock %}
 
 {% block main %}
-    <div style="text-align: right; padding: 10px; background-color: #f0f0f0; margin-bottom: 20px;">
-        <strong>Студент: [Ваше ФИО]</strong><br>
-        <strong>Группа: [Ваша группа]</strong>
-    </div>
-
-    <h1>Корзина</h1>
+    <h1>Корзина покупок</h1>
     
-    <div style="margin-bottom: 20px;">
-        <a href="/rgz/">Назад к товарам</a> |
-        <a href="/rgz/logout">Выход</a>
+    <div id="cart-container">
+        <p>Загрузка корзины...</p>
     </div>
     
-    {% if cart_items %}
-        <div id="cart-items">
-            {% for item in cart_items %}
-            <div class="cart-item" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; background-color: #f9f9f9;">
-                <h3>{{ item.product.name }}</h3>
-                <p>Цена за шт.: {{ "%.2f"|format(item.product.price) }} руб.</p>
-                <p>Количество: 
-                    <input type="number" 
-                           id="quantity-{{ item.id }}" 
-                           value="{{ item.quantity }}" 
-                           min="1" 
-                           max="{{ item.product.stock + item.quantity }}"
-                           style="width: 60px; padding: 5px;"
-                           onchange="updateCartItem({{ item.id }}, this.value)">
-                </p>
-                <p>Итого: {{ "%.2f"|format(item.product.price * item.quantity) }} руб.</p>
-                <button onclick="removeFromCart({{ item.id }})" 
-                        style="padding: 5px 10px; background-color: #f44336; color: white; border: none; border-radius: 3px; cursor: pointer;">
-                    Удалить
-                </button>
-            </div>
-            {% endfor %}
-            
-            <div style="margin-top: 20px; font-size: 1.2em; padding: 15px; background-color: #e8f5e8; border-radius: 5px;">
-                <strong>Общая сумма: {{ "%.2f"|format(total) }} руб.</strong>
-            </div>
-            
-            <button onclick="checkout()" 
-                    style="padding: 10px 20px; font-size: 1.1em; margin-top: 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Оформить заказ
-            </button>
-        </div>
-    {% else %}
-        <p style="padding: 20px; background-color: #f0f0f0; border-radius: 5px;">Ваша корзина пуста.</p>
-    {% endif %}
+    <div id="cart-total" class="cart-total">
+        <!-- Здесь будет отображаться общая сумма -->
+    </div>
+    
+    <div class="cart-actions">
+        <button onclick="clearCart()" class="btn btn-danger">Очистить корзину</button>
+        <a href="/rgz/checkout" class="btn btn-success">Оформить заказ</a>
+        <a href="/rgz/" class="btn btn-secondary">Продолжить покупки</a>
+    </div>
 
     <script>
-    function updateCartItem(cartItemId, quantity) {
-        fetch('/rgz/api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                method: 'update_cart_quantity',
-                params: {
-                    cart_item_id: cartItemId,
-                    quantity: parseInt(quantity)
-                },
-                id: 1
+        function loadCart() {
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'get_cart',
+                    params: {},
+                    id: 1
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result && data.result.success) {
-                location.reload();
-            } else if (data.error) {
-                alert('Ошибка: ' + data.error.message);
-                location.reload();
-            }
-        });
-    }
-    
-    function removeFromCart(cartItemId) {
-        if (!confirm('Удалить товар из корзины?')) return;
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('cart-container');
+                
+                if (!data.result || data.result.length === 0) {
+                    container.innerHTML = '<p>Ваша корзина пуста</p>';
+                    document.getElementById('cart-total').innerHTML = '';
+                    return;
+                }
+                
+                let html = `
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Товар</th>
+                                <th>Цена</th>
+                                <th>Количество</th>
+                                <th>Сумма</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                data.result.forEach(item => {
+                    const total = item.price * (item.quantity || 1);
+                    html += `
+                        <tr id="cart-item-${item.id}">
+                            <td>
+                                <strong>${item.name}</strong><br>
+                                <small>${item.category}</small>
+                            </td>
+                            <td>${item.price} руб.</td>
+                            <td>
+                                <input type="number" min="1" value="${item.quantity || 1}" 
+                                       id="qty-cart-${item.id}"
+                                       onchange="updateQuantity(${item.id}, this.value)">
+                            </td>
+                            <td>${total} руб.</td>
+                            <td>
+                                <button onclick="removeFromCart(${item.id})" 
+                                        class="btn btn-sm btn-danger">
+                                    Удалить
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                
+                // Загружаем общую сумму
+                loadCartTotal();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('cart-container').innerHTML = 
+                    '<p>Ошибка при загрузке корзины</p>';
+            });
+        }
         
-        fetch('/rgz/api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                method: 'remove_from_cart',
-                params: {
-                    cart_item_id: cartItemId
-                },
-                id: 1
+        function loadCartTotal() {
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'get_cart_total',
+                    params: {},
+                    id: 1
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result && data.result.success) {
-                location.reload();
-            } else if (data.error) {
-                alert('Ошибка: ' + data.error.message);
-            }
-        });
-    }
-    
-    function checkout() {
-        if (!confirm('Оформить заказ?')) return;
+            .then(response => response.json())
+            .then(data => {
+                if (data.result) {
+                    document.getElementById('cart-total').innerHTML = `
+                        <h3>Итого: ${data.result.total} руб.</h3>
+                        <p>Количество товаров: ${data.result.item_count}</p>
+                    `;
+                }
+            });
+        }
         
-        fetch('/rgz/api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                method: 'checkout',
-                params: {},
-                id: 1
+        function removeFromCart(itemId) {
+            if (!confirm('Удалить товар из корзины?')) return;
+            
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'remove_from_cart',
+                    params: {item_id: itemId},
+                    id: 1
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result && data.result.success) {
-                alert('Заказ оформлен! Номер заказа: ' + data.result.order_id + '\nСумма: ' + data.result.total + ' руб.');
-                window.location.href = '/rgz/';
-            } else if (data.error) {
-                alert('Ошибка: ' + data.error.message);
+            .then(response => response.json())
+            .then(data => {
+                if (data.result && data.result.success) {
+                    loadCart(); // Перезагружаем корзину
+                } else if (data.error) {
+                    alert('Ошибка: ' + data.error.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function updateQuantity(itemId, quantity) {
+            const qty = parseInt(quantity);
+            if (qty < 1) {
+                removeFromCart(itemId);
+                return;
             }
-        });
-    }
+            
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'update_cart_item',
+                    params: {item_id: itemId, quantity: qty},
+                    id: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result && data.result.success) {
+                    loadCartTotal(); // Обновляем только сумму
+                } else if (data.error) {
+                    alert('Ошибка: ' + data.error.message);
+                    loadCart(); // Перезагружаем корзину для восстановления правильного количества
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function clearCart() {
+            if (!confirm('Очистить всю корзину?')) return;
+            
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'clear_cart',
+                    params: {},
+                    id: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result && data.result.success) {
+                    loadCart(); // Перезагружаем корзину
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        // Загружаем корзину при открытии страницы
+        document.addEventListener('DOMContentLoaded', loadCart);
     </script>
+
+    <style>
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .cart-table th, .cart-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .cart-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .cart-total {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .cart-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        input[type="number"] {
+            width: 70px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
 {% endblock %}

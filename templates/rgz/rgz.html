@@ -3,87 +3,275 @@
 {% block number_lab %}Расчетно-графическое задание{% endblock %}
 
 {% block main %}
-    <div style="text-align: right; padding: 10px; background-color: #f0f0f0; margin-bottom: 20px;">
-        <strong>Студент: [Ваше ФИО]</strong><br>
-        <strong>Группа: [Ваша группа]</strong>
-    </div>
-
-    <h1>Онлайн-магазин "Мебель для дома"</h1>
-
-    <div class="user-info" style="margin-bottom: 20px;">
-        {% if current_user.is_authenticated %}
-            <p>Добро пожаловать, {{ current_user.login }}!</p>
-            <a href="/rgz/cart">Корзина</a> |
-            <a href="/rgz/logout">Выход</a>
-            <form action="/rgz/delete_account" method="POST" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить аккаунт?');">
-                <button type="submit" style="color: red; background: none; border: none; cursor: pointer; text-decoration: underline;">Удалить аккаунт</button>
-            </form>
-        {% else %}
-            <p>Вы не авторизованы. Только просмотр товаров.</p>
-            <a href="/rgz/login">Вход</a> |
-            <a href="/rgz/register">Регистрация</a>
-        {% endif %}
-    </div>
-
-    <h2>Каталог товаров</h2>
+    <h1>Онлайн-магазин (продажа мебели)</h1>
     
-    <div id="products-list">
-        {% for product in products %}
-        <div class="product-card" style="border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 5px; background-color: #f9f9f9;">
-            <h3>{{ product.name }}</h3>
-            <p>{{ product.description }}</p>
-            <p><strong>Цена: {{ "%.2f"|format(product.price) }} руб.</strong></p>
-            <p>Категория: {{ product.category }}</p>
-            <p>В наличии: {{ product.stock }} шт.</p>
-            
-            {% if current_user.is_authenticated %}
-                <div class="product-actions">
-                    <button onclick="addToCart({{ product.id }})" 
-                            {% if product.stock == 0 %}disabled{% endif %}
-                            style="padding: 8px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 3px; cursor: pointer;">
-                        Добавить в корзину
-                    </button>
-                    <input type="number" id="quantity-{{ product.id }}" value="1" min="1" max="{{ product.stock }}" style="width: 60px; padding: 5px;">
-                </div>
-            {% else %}
-                <p><em>Для добавления в корзину необходимо авторизоваться</em></p>
-            {% endif %}
+    {% if current_user.is_authenticated %}
+        <div class="user-info">
+            <p>Добро пожаловать, {{ current_user.login }}!</p>
+            <div class="cart-info">
+                <span id="cart-total">Корзина: 0 товаров</span>
+                <a href="/rgz/cart" class="btn btn-sm btn-primary">Перейти в корзину</a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="spisoklab">
+        <ol class="text">
+            <li><a href="/rgz/login">Вход</a></li>
+            <li><a href="/rgz/register">Регистрация</a></li>
+            <li><a href="/rgz/logout">Выход</a></li>
+            <li><a href="/rgz/cart">Корзина</a></li>
+            <li><a href="/rgz/checkout">Оформить заказ</a></li>
+        </ol>
+    </div>
+
+    <div class="filters">
+        <select id="category-filter" class="form-select">
+            <option value="">Все категории</option>
+            {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+        </select>
+        
+        <input type="text" id="search-input" class="form-input" placeholder="Поиск товаров...">
+        <button onclick="filterProducts()" class="btn btn-primary">Поиск</button>
+    </div>
+
+    <div id="products-container" class="products-grid">
+        {% for item in furniture %}
+        <div class="product-card" data-category="{{ item.category }}">
+            <div class="product-image">
+                <img src="{{ url_for('static', filename='images/' + item.image) }}" 
+                     alt="{{ item.name }}" 
+                     onerror="this.src='{{ url_for('static', filename='images/default.jpg') }}'">
+            </div>
+            <div class="product-info">
+                <h3>{{ item.name }}</h3>
+                <p class="category">{{ item.category }}</p>
+                <p class="description">{{ item.description }}</p>
+                <p class="price">{{ item.price }} руб.</p>
+                
+                {% if current_user.is_authenticated %}
+                    <div class="product-actions">
+                        <input type="number" min="1" value="1" class="quantity-input" id="qty-{{ item.id }}">
+                        <button onclick="addToCart({{ item.id }})" class="btn btn-success btn-sm">
+                            В корзину
+                        </button>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Войдите, чтобы добавить в корзину</p>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>
 
     <script>
-    function addToCart(productId) {
-        const quantityInput = document.getElementById('quantity-' + productId);
-        const quantity = quantityInput ? quantityInput.value : 1;
-        
-        fetch('/rgz/api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                method: 'add_to_cart',
-                params: {
-                    product_id: productId,
-                    quantity: parseInt(quantity)
-                },
-                id: 1
+        function filterProducts() {
+            const category = document.getElementById('category-filter').value;
+            const search = document.getElementById('search-input').value.toLowerCase();
+            
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'get_items',
+                    params: {category: category, search: search},
+                    id: 1
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result && data.result.success) {
-                alert('Товар добавлен в корзину!');
-            } else if (data.error) {
-                alert('Ошибка: ' + data.error.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Ошибка при добавлении в корзину');
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('products-container');
+                container.innerHTML = '';
+                
+                data.result.forEach(item => {
+                    const isAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' }};
+                    
+                    const productHTML = `
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="/static/images/${item.image}" 
+                                     alt="${item.name}" 
+                                     onerror="this.src='/static/images/default.jpg'">
+                            </div>
+                            <div class="product-info">
+                                <h3>${item.name}</h3>
+                                <p class="category">${item.category}</p>
+                                <p class="description">${item.description}</p>
+                                <p class="price">${item.price} руб.</p>
+                                
+                                ${isAuthenticated ? `
+                                    <div class="product-actions">
+                                        <input type="number" min="1" value="1" class="quantity-input" id="qty-${item.id}">
+                                        <button onclick="addToCart(${item.id})" class="btn btn-success btn-sm">
+                                            В корзину
+                                        </button>
+                                    </div>
+                                ` : `
+                                    <p class="text-muted">Войдите, чтобы добавить в корзину</p>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.innerHTML += productHTML;
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function addToCart(itemId) {
+            const quantity = parseInt(document.getElementById(`qty-${itemId}`).value);
+            
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'add_to_cart',
+                    params: {item_id: itemId, quantity: quantity},
+                    id: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result && data.result.success) {
+                    alert('Товар добавлен в корзину!');
+                    updateCartTotal();
+                } else if (data.error) {
+                    alert('Ошибка: ' + data.error.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function updateCartTotal() {
+            fetch('/rgz/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'get_cart_total',
+                    params: {},
+                    id: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result) {
+                    document.getElementById('cart-total').textContent = 
+                        `Корзина: ${data.result.item_count} товаров (${data.result.total} руб.)`;
+                }
+            });
+        }
+        
+        // Обновляем информацию о корзине при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if current_user.is_authenticated %}
+                updateCartTotal();
+            {% endif %}
         });
-    }
     </script>
+
+    <style>
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cart-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            align-items: center;
+        }
+        
+        .form-select, .form-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+            transition: transform 0.2s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .product-info h3 {
+            margin: 10px 0 5px 0;
+            font-size: 1.2em;
+        }
+        
+        .category {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .description {
+            color: #555;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .price {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .quantity-input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .text-muted {
+            color: #999;
+            font-style: italic;
+        }
+    </style>
 {% endblock %}

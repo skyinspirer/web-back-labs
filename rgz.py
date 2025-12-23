@@ -1,72 +1,96 @@
 from flask import Blueprint, url_for, request, redirect, abort, render_template, make_response, session, current_app, jsonify
 import json
-import functools
-import re
 from werkzeug.security import check_password_hash, generate_password_hash
 from db import db
-from db.models import users, Product, CartItem, Order, OrderItem
+from db.models import users
 from flask_login import login_user, login_required, current_user, logout_user
+from functools import wraps
 
 rgz = Blueprint('rgz', __name__)
 
-# Вспомогательная функция для JSON-RPC
-def jsonrpc(f):
-    @functools.wraps(f)
+# Инициализируем список товаров
+furniture_items = [
+    {"id": 1, "name": "Диван 'Комфорт'", "price": 25000, "category": "Диваны", "image": "sofa1.jpg", "description": "Мягкий угловой диван с механизмом трансформации"},
+    {"id": 2, "name": "Кресло 'Премиум'", "price": 15000, "category": "Кресла", "image": "armchair1.jpg", "description": "Кожаное кресло с подлокотниками"},
+    {"id": 3, "name": "Стол 'Офисный'", "price": 12000, "category": "Столы", "image": "table1.jpg", "description": "Деревянный офисный стол"},
+    {"id": 4, "name": "Стул 'Стандарт'", "price": 3500, "category": "Стулья", "image": "chair1.jpg", "description": "Офисный стул с регулировкой высоты"},
+    {"id": 5, "name": "Шкаф 'Гардероб'", "price": 45000, "category": "Шкафы", "image": "wardrobe1.jpg", "description": "Трехдверный шкаф-купе"},
+    {"id": 6, "name": "Кровать 'Королевская'", "price": 35000, "category": "Кровати", "image": "bed1.jpg", "description": "Двуспальная кровать с ортопедическим матрасом"},
+    {"id": 7, "name": "Тумба 'Прикроватная'", "price": 8000, "category": "Тумбы", "image": "nightstand1.jpg", "description": "Деревянная прикроватная тумба"},
+    {"id": 8, "name": "Комод 'Классик'", "price": 22000, "category": "Комоды", "image": "dresser1.jpg", "description": "Пятиящичный комод из массива дерева"},
+    {"id": 9, "name": "Стеллаж 'Модерн'", "price": 18000, "category": "Стеллажи", "image": "shelf1.jpg", "description": "Напольный стеллаж с 6 полками"},
+    {"id": 10, "name": "Пуфик 'Мини'", "price": 5000, "category": "Пуфы", "image": "ottoman1.jpg", "description": "Кожаный пуфик для ног"},
+    {"id": 11, "name": "Диван 'Евро'", "price": 32000, "category": "Диваны", "image": "sofa2.jpg", "description": "Прямой диван еврокнижка"},
+    {"id": 12, "name": "Кресло-качалка", "price": 17000, "category": "Кресла", "image": "rocking_chair.jpg", "description": "Деревянное кресло-качалка"},
+    {"id": 13, "name": "Обеденный стол", "price": 28000, "category": "Столы", "image": "dining_table.jpg", "description": "Раздвижной обеденный стол"},
+    {"id": 14, "name": "Барный стул", "price": 4500, "category": "Стулья", "image": "bar_stool.jpg", "description": "Высокий барный стул"},
+    {"id": 15, "name": "Книжный шкаф", "price": 38000, "category": "Шкафы", "image": "bookcase.jpg", "description": "Шкаф для книг с стеклянными дверцами"},
+    {"id": 16, "name": "Кровать односпальная", "price": 22000, "category": "Кровати", "image": "single_bed.jpg", "description": "Односпальная кровать с ящиками"},
+    {"id": 17, "name": "Тумба для обуви", "price": 6500, "category": "Тумбы", "image": "shoe_cabinet.jpg", "description": "Вместительная тумба для обуви"},
+    {"id": 18, "name": "Комод детский", "price": 15000, "category": "Комоды", "image": "kids_dresser.jpg", "description": "Яркий комод для детской комнаты"},
+    {"id": 19, "name": "Стеллаж угловой", "price": 21000, "category": "Стеллажи", "image": "corner_shelf.jpg", "description": "Угловой стеллаж для книг"},
+    {"id": 20, "name": "Пуф со столиком", "price": 12000, "category": "Пуфы", "image": "ottoman_table.jpg", "description": "Пуф с откидной столешницей"},
+    {"id": 21, "name": "Угловой диван", "price": 55000, "category": "Диваны", "image": "corner_sofa.jpg", "description": "Большой угловой диван"},
+    {"id": 22, "name": "Компьютерное кресло", "price": 19000, "category": "Кресла", "image": "gaming_chair.jpg", "description": "Эргономичное компьютерное кресло"},
+    {"id": 23, "name": "Кофейный столик", "price": 15000, "category": "Столы", "image": "coffee_table.jpg", "description": "Стеклянный кофейный столик"},
+    {"id": 24, "name": "Складной стул", "price": 2500, "category": "Стулья", "image": "folding_chair.jpg", "description": "Металлический складной стул"},
+    {"id": 25, "name": "Шкаф-купе", "price": 68000, "category": "Шкафы", "image": "sliding_wardrobe.jpg", "description": "Встроенный шкаф-купе"},
+    {"id": 26, "name": "Двухъярусная кровать", "price": 42000, "category": "Кровати", "image": "bunk_bed.jpg", "description": "Детская двухъярусная кровать"},
+    {"id": 27, "name": "Тумба под TV", "price": 28000, "category": "Тумбы", "image": "tv_stand.jpg", "description": "Тумба для телевизора"},
+    {"id": 28, "name": "Комод с зеркалом", "price": 32000, "category": "Комоды", "image": "dresser_mirror.jpg", "description": "Туалетный комод с зеркалом"},
+    {"id": 29, "name": "Стеллаж для вина", "price": 35000, "category": "Стеллажи", "image": "wine_rack.jpg", "description": "Стеллаж для хранения вина"},
+    {"id": 30, "name": "Пуф-сундук", "price": 8500, "category": "Пуфы", "image": "chest_ottoman.jpg", "description": "Пуф с отделением для хранения"}
+]
+
+# Корзины пользователей (в памяти)
+carts = {}
+
+def json_rpc_response(result=None, error=None):
+    """Создание JSON-RPC ответа"""
+    response = {"jsonrpc": "2.0"}
+    if error:
+        response["error"] = error
+    else:
+        response["result"] = result
+    return jsonify(response)
+
+def handle_json_rpc(f):
+    """Декоратор для обработки JSON-RPC запросов"""
+    @wraps(f)
     def decorated_function(*args, **kwargs):
-        if request.method != 'POST':
-            return jsonify({'error': 'Only POST method is allowed'}), 405
+        if not request.is_json:
+            return json_rpc_response(error={"code": -32700, "message": "Parse error"})
         
         data = request.get_json()
-        if not data:
-            return jsonify({'error': 'Invalid JSON'}), 400
-            
-        if data.get('jsonrpc') != '2.0':
-            return jsonify({'error': 'Invalid JSON-RPC version'}), 400
-            
-        method = data.get('method')
-        params = data.get('params', {})
-        id = data.get('id')
         
-        if not method:
-            return jsonify({
-                'jsonrpc': '2.0',
-                'error': {
-                    'code': -32600,
-                    'message': 'Invalid Request: method is required'
-                },
-                'id': id
-            })
+        if not isinstance(data, dict):
+            return json_rpc_response(error={"code": -32600, "message": "Invalid Request"})
+        
+        if data.get("jsonrpc") != "2.0":
+            return json_rpc_response(error={"code": -32600, "message": "Invalid Request"})
+        
+        method = data.get("method")
+        params = data.get("params", {})
+        id = data.get("id")
         
         # Вызываем метод с параметрами
-        try:
-            result = f(method, params, *args, **kwargs)
-            response = {
-                'jsonrpc': '2.0',
-                'result': result,
-                'id': id
-            }
-            return jsonify(response)
-        except Exception as e:
-            response = {
-                'jsonrpc': '2.0',
-                'error': {
-                    'code': -32603,
-                    'message': str(e)
-                },
-                'id': id
-            }
-            return jsonify(response), 500
+        result = f(method, params, *args, **kwargs)
+        
+        if result is None:
+            return json_rpc_response(error={"code": -32601, "message": "Method not found"})
+        
+        if isinstance(result, dict) and "error" in result:
+            return json_rpc_response(error=result["error"])
+        
+        return json_rpc_response(result=result)
     
     return decorated_function
 
-# Главная страница магазина
 @rgz.route("/rgz/")
 def main():
-    # Показываем товары (первые 12)
-    products = Product.query.limit(12).all()
-    return render_template('rgz/rgz.html', products=products, user=current_user)
+    categories = list(set(item["category"] for item in furniture_items))
+    return render_template('rgz/rgz.html', furniture=furniture_items, categories=categories, current_user=current_user)
 
-# Регистрация (с валидацией)
 @rgz.route('/rgz/register/', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
@@ -80,14 +104,6 @@ def register():
     
     if not password_form:
         return render_template('rgz/register.html', error='Пароль не должен быть пустым')
-    
-    # Валидация логина
-    if not re.match(r'^[a-zA-Z0-9_\-\.]+$', login_form):
-        return render_template('rgz/register.html', error='Логин может содержать только латинские буквы, цифры, точки, дефисы и подчеркивания')
-    
-    # Валидация длины
-    if len(login_form) < 3 or len(login_form) > 30:
-        return render_template('rgz/register.html', error='Логин должен быть от 3 до 30 символов')
 
     login_exists = users.query.filter_by(login=login_form).first()
     if login_exists:
@@ -102,7 +118,6 @@ def register():
     login_user(new_user, remember=False)
     return redirect('/rgz/')
 
-# Вход
 @rgz.route('/rgz/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -110,7 +125,6 @@ def login():
     
     login_form = request.form.get('login')
     password_form = request.form.get('password')
-
     remember_me = request.form.get('remember') == 'yes'
 
     if not login_form:
@@ -130,284 +144,140 @@ def login():
     
     return render_template('rgz/login.html', error='Пользователь не найден')
 
-# Выход
 @rgz.route('/rgz/logout')
 @login_required
 def logout():
     logout_user()
     return redirect('/rgz/')
 
-# Корзина
-@rgz.route('/rgz/cart')
-@login_required
-def cart():
-    cart_items = CartItem.query.filter_by(user_id=current_user.id).join(Product).all()
-    total = sum(item.product.price * item.quantity for item in cart_items)
-    return render_template('rgz/cart.html', cart_items=cart_items, total=total)
-
-# Удаление аккаунта
-@rgz.route('/rgz/delete_account', methods=['POST'])
-@login_required
-def delete_account():
-    # Удаляем корзину пользователя
-    CartItem.query.filter_by(user_id=current_user.id).delete()
-    # Удаляем заказы пользователя
-    Order.query.filter_by(user_id=current_user.id).delete()
-    # Удаляем пользователя
-    user = users.query.get(current_user.id)
-    db.session.delete(user)
-    db.session.commit()
-    logout_user()
-    return redirect('/rgz/')
-
-# JSON-RPC API endpoint
 @rgz.route('/rgz/api', methods=['POST'])
 @login_required
-@jsonrpc
+@handle_json_rpc
 def api(method, params):
-    if method == 'add_to_cart':
-        product_id = params.get('product_id')
-        quantity = params.get('quantity', 1)
-        
-        # Валидация
-        if not product_id:
-            raise Exception('Product ID is required')
-        
-        try:
-            quantity = int(quantity)
-            if quantity <= 0:
-                raise Exception('Quantity must be positive')
-        except ValueError:
-            raise Exception('Quantity must be a number')
-        
-        product = Product.query.get(product_id)
-        if not product:
-            raise Exception('Product not found')
-        
-        # Валидация цены
-        if product.price <= 0:
-            raise Exception('Invalid product price')
-        
-        if product.stock < quantity:
-            raise Exception('Not enough stock')
-        
-        # Проверяем, есть ли уже товар в корзине
-        cart_item = CartItem.query.filter_by(
-            user_id=current_user.id, 
-            product_id=product_id
-        ).first()
-        
-        if cart_item:
-            cart_item.quantity += quantity
-        else:
-            cart_item = CartItem(
-                user_id=current_user.id,
-                product_id=product_id,
-                quantity=quantity
-            )
-            db.session.add(cart_item)
-        
-        db.session.commit()
-        return {'success': True, 'message': 'Product added to cart'}
+    """Обработка JSON-RPC API запросов"""
     
-    elif method == 'remove_from_cart':
-        cart_item_id = params.get('cart_item_id')
-        
-        if not cart_item_id:
-            raise Exception('Cart item ID is required')
-        
-        cart_item = CartItem.query.get(cart_item_id)
-        if not cart_item or cart_item.user_id != current_user.id:
-            raise Exception('Cart item not found')
-        
-        db.session.delete(cart_item)
-        db.session.commit()
-        return {'success': True, 'message': 'Product removed from cart'}
+    user_id = current_user.id
     
-    elif method == 'update_cart_quantity':
-        cart_item_id = params.get('cart_item_id')
-        quantity = params.get('quantity')
-        
-        if not cart_item_id or quantity is None:
-            raise Exception('Cart item ID and quantity are required')
-        
-        try:
-            quantity = int(quantity)
-            if quantity <= 0:
-                raise Exception('Quantity must be positive')
-        except ValueError:
-            raise Exception('Quantity must be a number')
-        
-        cart_item = CartItem.query.get(cart_item_id)
-        if not cart_item or cart_item.user_id != current_user.id:
-            raise Exception('Cart item not found')
-        
-        product = cart_item.product
-        if product.stock < quantity:
-            raise Exception('Not enough stock')
-        
-        cart_item.quantity = quantity
-        db.session.commit()
-        return {'success': True, 'message': 'Cart updated'}
+    # Инициализация корзины пользователя
+    if user_id not in carts:
+        carts[user_id] = []
     
-    elif method == 'get_cart':
-        cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-        result = []
-        for item in cart_items:
-            result.append({
-                'id': item.id,
-                'product': item.product.to_dict(),
-                'quantity': item.quantity,
-                'total': item.product.price * item.quantity
-            })
-        return result
-    
-    elif method == 'checkout':
-        # Получаем товары из корзины
-        cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+    if method == "get_items":
+        # Получение списка товаров с возможностью фильтрации
+        category = params.get("category")
+        search = params.get("search", "").lower()
         
-        if not cart_items:
-            raise Exception('Cart is empty')
-        
-        # Проверяем наличие товаров на складе
-        for item in cart_items:
-            if item.product.stock < item.quantity:
-                raise Exception(f'Not enough stock for {item.product.name}')
-        
-        # Создаем заказ
-        total = sum(item.product.price * item.quantity for item in cart_items)
-        order = Order(user_id=current_user.id, total_amount=total)
-        db.session.add(order)
-        db.session.flush()  # Получаем ID заказа
-        
-        # Добавляем товары в заказ и обновляем склад
-        for item in cart_items:
-            order_item = OrderItem(
-                order_id=order.id,
-                product_id=item.product_id,
-                quantity=item.quantity,
-                price_at_purchase=item.product.price
-            )
-            db.session.add(order_item)
-            
-            # Уменьшаем количество на складе
-            item.product.stock -= item.quantity
-        
-        # Очищаем корзину
-        CartItem.query.filter_by(user_id=current_user.id).delete()
-        
-        db.session.commit()
-        return {
-            'success': True, 
-            'message': 'Order placed successfully',
-            'order_id': order.id,
-            'total': total
-        }
-    
-    elif method == 'get_products':
-        category = params.get('category')
-        search = params.get('search')
-        limit = params.get('limit', 50)
-        
-        query = Product.query
+        items = furniture_items.copy()
         
         if category:
-            query = query.filter_by(category=category)
+            items = [item for item in items if item["category"] == category]
         
         if search:
-            query = query.filter(Product.name.ilike(f'%{search}%'))
+            items = [item for item in items 
+                    if search in item["name"].lower() 
+                    or search in item["description"].lower()]
         
-        products = query.limit(limit).all()
-        return [product.to_dict() for product in products]
+        return items
     
-    else:
-        raise Exception(f'Method {method} not found')
+    elif method == "add_to_cart":
+        # Добавление товара в корзину
+        item_id = params.get("item_id")
+        quantity = params.get("quantity", 1)
+        
+        # Проверка существования товара
+        item = next((item for item in furniture_items if item["id"] == item_id), None)
+        if not item:
+            return {"error": {"code": -32001, "message": "Item not found"}}
+        
+        # Проверка наличия товара в корзине
+        cart_item = next((ci for ci in carts[user_id] if ci["id"] == item_id), None)
+        
+        if cart_item:
+            cart_item["quantity"] += quantity
+        else:
+            new_cart_item = item.copy()
+            new_cart_item["quantity"] = quantity
+            carts[user_id].append(new_cart_item)
+        
+        return {"success": True, "message": "Item added to cart"}
+    
+    elif method == "remove_from_cart":
+        # Удаление товара из корзины
+        item_id = params.get("item_id")
+        
+        carts[user_id] = [item for item in carts[user_id] if item["id"] != item_id]
+        
+        return {"success": True, "message": "Item removed from cart"}
+    
+    elif method == "update_cart_item":
+        # Обновление количества товара в корзине
+        item_id = params.get("item_id")
+        quantity = params.get("quantity")
+        
+        if quantity <= 0:
+            return {"error": {"code": -32002, "message": "Quantity must be positive"}}
+        
+        for item in carts[user_id]:
+            if item["id"] == item_id:
+                item["quantity"] = quantity
+                return {"success": True, "message": "Cart updated"}
+        
+        return {"error": {"code": -32001, "message": "Item not found in cart"}}
+    
+    elif method == "get_cart":
+        # Получение содержимого корзины
+        return carts.get(user_id, [])
+    
+    elif method == "get_cart_total":
+        # Получение общей суммы корзины
+        cart = carts.get(user_id, [])
+        total = sum(item["price"] * item.get("quantity", 1) for item in cart)
+        item_count = sum(item.get("quantity", 1) for item in cart)
+        return {"total": total, "item_count": item_count}
+    
+    elif method == "clear_cart":
+        # Очистка корзины
+        carts[user_id] = []
+        return {"success": True, "message": "Cart cleared"}
+    
+    elif method == "checkout":
+        # Оформление покупки
+        cart = carts.get(user_id, [])
+        
+        if not cart:
+            return {"error": {"code": -32003, "message": "Cart is empty"}}
+        
+        # Здесь можно добавить логику обработки покупки
+        # Например, сохранение заказа, отправка email и т.д.
+        
+        # Очищаем корзину после покупки
+        carts[user_id] = []
+        
+        return {
+            "success": True, 
+            "message": "Purchase completed successfully",
+            "order_details": {
+                "items": cart,
+                "total": sum(item["price"] * item.get("quantity", 1) for item in cart),
+                "order_id": f"ORD-{user_id}-{int(time.time())}"
+            }
+        }
+    
+    elif method == "get_categories":
+        # Получение списка категорий
+        categories = list(set(item["category"] for item in furniture_items))
+        return categories
+    
+    return None  # Метод не найден
 
-# Создание таблиц (одноразовый вызов)
-@rgz.route('/rgz/create_tables')
-def create_tables():
-    try:
-        # Создаем только таблицы для RGZ
-        db.create_all()
-        return "Таблицы RGZ успешно созданы! <a href='/rgz/init_products'>Добавить товары</a>"
-    except Exception as e:
-        return f"Ошибка при создании таблиц: {str(e)}"
+@rgz.route('/rgz/cart')
+@login_required
+def view_cart():
+    """Страница просмотра корзины"""
+    return render_template('rgz/cart.html', current_user=current_user)
 
-# Инициализация товаров (одноразовый вызов)
-@rgz.route('/rgz/init_products')
-def init_products():
-    if Product.query.count() > 0:
-        return "Товары уже добавлены. <a href='/rgz/'>Перейти в магазин</a>"
-    
-    furniture_products = [
-        # Диваны
-        {'name': 'Угловой диван "Комфорт"', 'description': 'Просторный угловой диван с ортопедическим матрасом', 'price': 45999.99, 'category': 'Диваны', 'stock': 10},
-        {'name': 'Прямой диван "Модерн"', 'description': 'Современный диван с регулируемой спинкой', 'price': 32999.99, 'category': 'Диваны', 'stock': 15},
-        {'name': 'Диван-кровать "Евро"', 'description': 'Раскладной диван для гостевой комнаты', 'price': 27999.99, 'category': 'Диваны', 'stock': 8},
-        
-        # Кровати
-        {'name': 'Двуспальная кровать "Рояль"', 'description': 'Кровать с ортопедическим основанием и ящиками', 'price': 58999.99, 'category': 'Кровати', 'stock': 7},
-        {'name': 'Односпальная кровать "Студент"', 'description': 'Компактная кровать для небольших комнат', 'price': 18999.99, 'category': 'Кровати', 'stock': 12},
-        {'name': 'Детская кровать "Радуга"', 'description': 'Яркая кровать с бортиками безопасности', 'price': 22999.99, 'category': 'Кровати', 'stock': 9},
-        
-        # Столы
-        {'name': 'Обеденный стол "Семейный"', 'description': 'Большой стол из массива дуба', 'price': 34999.99, 'category': 'Столы', 'stock': 6},
-        {'name': 'Рабочий стол "Офис"', 'description': 'Эргономичный стол с отделениями для проводов', 'price': 15999.99, 'category': 'Столы', 'stock': 20},
-        {'name': 'Кофейный столик "Минимал"', 'description': 'Современный журнальный столик со стеклянной столешницей', 'price': 8999.99, 'category': 'Столы', 'stock': 15},
-        
-        # Стулья
-        {'name': 'Офисный стул "Эрго"', 'description': 'Стул с регулируемой высотой и поддержкой поясницы', 'price': 12999.99, 'category': 'Стулья', 'stock': 25},
-        {'name': 'Обеденный стул "Классик"', 'description': 'Деревянный стул с мягким сиденьем', 'price': 4999.99, 'category': 'Стулья', 'stock': 30},
-        {'name': 'Барный стул "Высота"', 'description': 'Стул для кухонной барной стойки', 'price': 6999.99, 'category': 'Стулья', 'stock': 18},
-        
-        # Шкафы
-        {'name': 'Гардеробный шкаф "Система"', 'description': 'Вместительный шкаф-купе с зеркальными дверями', 'price': 78999.99, 'category': 'Шкафы', 'stock': 5},
-        {'name': 'Книжный шкаф "Библиотека"', 'description': 'Шкаф с регулируемыми полками', 'price': 28999.99, 'category': 'Шкафы', 'stock': 8},
-        {'name': 'Комод "Практик"', 'description': 'Комод с 5 выдвижными ящиками', 'price': 18999.99, 'category': 'Шкафы', 'stock': 10},
-        
-        # Кресла
-        {'name': 'Кресло-качалка "Релакс"', 'description': 'Деревянное кресло-качалка для отдыха', 'price': 21999.99, 'category': 'Кресла', 'stock': 6},
-        {'name': 'Компьютерное кресло "Геймер"', 'description': 'Кресло с поддержкой спины и подголовником', 'price': 24999.99, 'category': 'Кресла', 'stock': 12},
-        {'name': 'Кресло-мешок "Бинбэг"', 'description': 'Мягкое кресло-мешок для расслабления', 'price': 7999.99, 'category': 'Кресла', 'stock': 20},
-        
-        # Полки
-        {'name': 'Настенная полка "Модуль"', 'description': 'Набор из 3 модульных полок', 'price': 6999.99, 'category': 'Полки', 'stock': 25},
-        {'name': 'Угловая полка "Эконом"', 'description': 'Угловая полка для экономии пространства', 'price': 3999.99, 'category': 'Полки', 'stock': 18},
-        
-        # Тумбы
-        {'name': 'Тумба под ТВ "Медиа"', 'description': 'Тумба с отделениями для техники', 'price': 22999.99, 'category': 'Тумбы', 'stock': 9},
-        {'name': 'Прикроватная тумба "Ночник"', 'description': 'Тумба с выдвижным ящиком и полкой', 'price': 8999.99, 'category': 'Тумбы', 'stock': 15},
-        
-        # Матрасы
-        {'name': 'Ортопедический матрас "Здоровье"', 'description': 'Матрас с независимыми пружинами', 'price': 32999.99, 'category': 'Матрасы', 'stock': 7},
-        {'name': 'Детский матрас "Антиаллерген"', 'description': 'Гипоаллергенный матрас для детей', 'price': 18999.99, 'category': 'Матрасы', 'stock': 10},
-        
-        # Светильники
-        {'name': 'Люстра "Хрусталь"', 'description': 'Большая люстра с хрустальными подвесками', 'price': 45999.99, 'category': 'Свет', 'stock': 4},
-        {'name': 'Настольная лампа "Офис"', 'description': 'Лампа с регулируемым углом наклона', 'price': 2999.99, 'category': 'Свет', 'stock': 30},
-        
-        # Столы для компьютера
-        {'name': 'Игровой стол "Профи"', 'description': 'Стол с местом для системного блока и проводов', 'price': 19999.99, 'category': 'Компьютерные столы', 'stock': 11},
-        
-        # Диваны для офиса
-        {'name': 'Офисный диван "Ресепшн"', 'description': 'Диван для зоны ожидания', 'price': 38999.99, 'category': 'Офисная мебель', 'stock': 6},
-        
-        # Стеллажи
-        {'name': 'Стеллаж "Склад"', 'description': 'Прочный стеллаж для хранения', 'price': 15999.99, 'category': 'Стеллажи', 'stock': 14},
-        
-        # Пуфы
-        {'name': 'Пуф "Оттоманка"', 'description': 'Мягкий пуф с отсеком для хранения', 'price': 8999.99, 'category': 'Пуфы', 'stock': 22},
-        
-        # Детская мебель
-        {'name': 'Детский столик "Творчество"', 'description': 'Стол для рисования и игр', 'price': 7999.99, 'category': 'Детская', 'stock': 16},
-        
-        # Садовая мебель
-        {'name': 'Садовый стол "Патио"', 'description': 'Стол для улицы из влагостойкого материала', 'price': 24999.99, 'category': 'Садовая', 'stock': 8},
-    ]
-    
-    for product_data in furniture_products:
-        product = Product(**product_data)
-        db.session.add(product)
-    
-    db.session.commit()
-    return "30 товаров успешно добавлены! <a href='/rgz/'>Перейти в магазин</a>"
+@rgz.route('/rgz/checkout')
+@login_required
+def checkout_page():
+    """Страница оформления заказа"""
+    return render_template('rgz/checkout.html', current_user=current_user)
