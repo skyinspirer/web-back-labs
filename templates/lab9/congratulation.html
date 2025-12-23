@@ -1,25 +1,296 @@
-{% extends "base.html" %}
+{% extends "lab9/base1.html" %}
 
 {% block lab %}Поздравление!{% endblock %}
 
 {% block style %}
+<style>
+    /* Стили для страницы поздравления */
+    body {
+        background: #ffffff !important;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    main {
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .congrats-container {
+        max-width: 95%;
+        width: 100%;
+        margin: 20px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        border: 4px solid #28a745;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .congrats-container h1 {
+        color: #dc3545;
+        margin-bottom: 20px;
+        font-size: clamp(1.8em, 5vw, 2.5em);
+        text-align: center;
+        width: 100%;
+    }
+    
+    .congrats-container > p {
+        font-size: clamp(1em, 3vw, 1.2em);
+        color: #6c757d;
+        margin-bottom: 20px;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .message-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 5px solid #28a745;
+        margin: 20px 0;
+        font-size: clamp(1em, 3vw, 1.2em);
+        color: #495057;
+        text-align: left;
+        width: 100%;
+        max-width: 600px;
+    }
+    
+    /* КОНТЕЙНЕР ДЛЯ ПОДАРКА - АДАПТИВНЫЙ */
+    .gift-card {
+        width: 100%;
+        max-width: 500px;
+        margin: 20px auto;
+        background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border: 2px solid #dee2e6;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .gift-card h2 {
+        color: #28a745;
+        margin-bottom: 20px;
+        font-size: clamp(1.4em, 4vw, 1.8em);
+        text-align: center;
+    }
+    
+    /* АДАПТИВНОЕ ИЗОБРАЖЕНИЕ ПОДАРКА */
+    .gift-image-container {
+        width: 100%;
+        aspect-ratio: 1 / 1; /* Квадратное соотношение */
+        max-width: 300px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: white;
+        border-radius: 12px;
+        padding: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .gift-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Сохраняет пропорции, вписывает в контейнер */
+        border-radius: 8px;
+        border: 3px solid #28a745;
+        transition: transform 0.3s ease;
+    }
+    
+    .gift-image:hover {
+        transform: scale(1.03);
+    }
+    
+    /* ИНФОРМАЦИЯ О ПОДАРКЕ */
+    .gift-info {
+        margin-top: 20px;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .gift-info p {
+        color: #495057;
+        font-size: clamp(0.9em, 2.5vw, 1.1em);
+        margin: 8px 0;
+    }
+    
+    /* КНОПКА НАЗАД */
+    .btn-back {
+        display: inline-block;
+        background: linear-gradient(145deg, #28a745, #20c997);
+        color: white;
+        padding: clamp(12px, 3vw, 16px) clamp(25px, 5vw, 35px);
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: clamp(1em, 3vw, 1.2em);
+        margin-top: 30px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        min-width: 200px;
+        max-width: 300px;
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
+    }
+    
+    .btn-back:hover {
+        background: linear-gradient(145deg, #218838, #1ba87e);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+    }
+    
+    /* ДЕКОРАТИВНЫЕ ЭЛЕМЕНТЫ */
+    .decoration {
+        position: absolute;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.1;
+    }
+    
+    .decoration-1 {
+        top: 10%;
+        left: 5%;
+        font-size: clamp(2em, 6vw, 4em);
+        transform: rotate(-15deg);
+    }
+    
+    .decoration-2 {
+        bottom: 10%;
+        right: 5%;
+        font-size: clamp(2em, 6vw, 4em);
+        transform: rotate(15deg);
+    }
+    
+    /* АДАПТИВНОСТЬ */
+    @media (max-width: 768px) {
+        .congrats-container {
+            padding: 20px 15px;
+            margin: 15px;
+            border-radius: 15px;
+        }
+        
+        .gift-card {
+            padding: 20px 15px;
+            margin: 15px auto;
+        }
+        
+        .gift-image-container {
+            max-width: 250px;
+        }
+        
+        .message-box {
+            padding: 15px;
+            font-size: 1em;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .congrats-container {
+            padding: 15px 10px;
+            margin: 10px;
+            border-radius: 12px;
+            border-width: 3px;
+        }
+        
+        .gift-card {
+            padding: 15px 10px;
+            border-radius: 12px;
+        }
+        
+        .gift-image-container {
+            max-width: 200px;
+            padding: 8px;
+        }
+        
+        .gift-image {
+            border-width: 2px;
+        }
+        
+        .btn-back {
+            min-width: 180px;
+            padding: 12px 20px;
+            font-size: 1em;
+        }
+        
+        .decoration {
+            display: none; /* Скрываем декор на очень маленьких экранах */
+        }
+    }
+    
+    @media (min-width: 1200px) {
+        .congrats-container {
+            max-width: 800px;
+        }
+        
+        .gift-card {
+            max-width: 450px;
+        }
+    }
+    
+    /* Анимация появления */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .congrats-container {
+        animation: fadeInUp 0.5s ease-out;
+    }
+</style>
 {% endblock %}
 
 {% block main %}
+<!-- Декоративные элементы -->
+<div class="decoration decoration-1">🎁</div>
+<div class="decoration decoration-2">🎉</div>
+
 <div class="congrats-container">
     <h1>🎉 Поздравляем! 🎉</h1>
-    <p>Вы открыли коробку №{{ box_id }}</p>
+    
+    <p style="font-size: 20px; color: #6c757d;">Вы открыли коробку №{{ box_id }}</p>
     
     <div class="message-box">
         {{ box.message }}
     </div>
     
-    <h2>Ваш подарок:</h2>
-    <img src="{{ img_path }}" alt="Подарок" class="gift-image"
-         onerror="this.src='/static/lab9/default_gift.jpg'">
+    <div class="gift-card">
+        <h2>🎁 Ваш подарок:</h2>
+        
+        <div class="gift-image-container">
+            <img src="{{ img_path }}" alt="Подарок" class="gift-image"
+                 onerror="this.src='/static/lab9/default_gift.jpg'">
+        </div>
+        
+        <div class="gift-info">
+            <p><strong>Коробка №{{ box_id }}</strong></p>
+            <p>Ваш новогодний сюрприз!</p>
+        </div>
+    </div>
     
-    <div>
-        <a href="/lab9/" class="btn btn4">Вернуться к коробкам</a>
+    <div style="margin-top: 20px;">
+        <a href="/lab9/" class="btn-back">Вернуться к коробкам</a>
     </div>
 </div>
 {% endblock %}

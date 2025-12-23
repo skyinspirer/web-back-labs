@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Цеунов Матвей Евгеньевич. {% block number_lab %}{% endblock %}
+    </title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    {% block style %}{% endblock %}
+    <style>
+        /* ВСТАВЬТЕ СЮДА ОСНОВНЫЕ СТИЛИ ИЗ ВАШЕГО CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: #2c3e50;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: #ecf0f1;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .menu-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .menu {
+            border: 2px solid rgba(0, 136, 128, 0.3);
+            border-radius: 12px;
+            width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(to bottom, #ffffff, #f5f9ff);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu:hover {
+            background: linear-gradient(to bottom, #ffffff, #e6f0ff);
+            box-shadow: 0 8px 25px rgba(0, 100, 200, 0.15);
+            transform: translateY(-5px);
+            border-color: rgba(0, 136, 128, 0.5);
+        }
+
+        .menu-title {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            list-style: none;
+        }
+
+        .menu-items li {
+            padding: 10px;
+            margin: 8px 0;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-items li:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+            transform: scale(1.03);
+        }
+        
+        .error {
+            color: rgb(174, 0, 0);
+        }
+
+        a {
+            text-decoration: none;
+            color: #2980b9;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        a:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #2980b9;
+            transition: width 0.3s ease;
+        }
+
+        a:hover:after {
+            width: 100%;
+        }
+
+        a:link {
+            color: #2980b9;
+        }
+
+        a:visited {
+            color: #8e44ad;
+        }
+
+        a:hover {
+            color: #e74c3c;
+        }
+
+        a:active {
+            color: #c0392b;
+            transform: scale(0.98);
+        }
+
+        footer {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: #ecf0f1;
+            padding: 20px;
+            font-size: 1.1rem;
+            font-style: italic;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            text-align: right;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 70px;
+            }
+            
+            main {
+                margin: 20px 15px;
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .menu {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        img {
+            width: 50vw; 
+            height: auto; 
+            max-width: 100%; 
+            aspect-ratio: 16/9; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); 
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            object-fit: cover; 
+            display: block; 
+            margin: 0 auto; 
+        }
+
+        /* ДИНАМИЧЕСКИЕ СТИЛИ ИЗ COOKIES - ИСПРАВЛЕННЫЙ КОД */
+        {% if request.cookies.get('color') %}
+        body, main {
+            color: {{ request.cookies.get('color') | safe }};
+        }
+        {% endif %}
+        
+        {% if request.cookies.get('bg_color') %}
+        body {
+            background-color: {{ request.cookies.get('bg_color') | safe }} !important;
+            background-image: none !important;
+        }
+        {% endif %}
+        
+        {% if request.cookies.get('font_size') %}
+        body {
+            font-size: {{ request.cookies.get('font_size') | safe }};
+        }
+        {% endif %}
+        
+        {% if request.cookies.get('cursor') %}
+        body {
+            cursor: {{ request.cookies.get('cursor') | safe }};
+        }
+        {% endif %}
+    </style>
+    {% block script %}{% endblock %}
+</head>
+<body>
+    <header>
+        WEB-Программирование, часть 2. {{ self.number_lab() }}
+    </header>
+
+    <main>
+        <a href="/">Список Лабораторных работ</a>
+        {% block main %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            Цеунов Матвей Евгеньевич, ФБИ-31, 3 курс, 2025
+        </div>
+    </footer>
+</body>
+</html>

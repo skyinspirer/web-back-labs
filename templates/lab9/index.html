@@ -1,13 +1,247 @@
-{% extends "base.html" %}
+{% extends "lab9/base1.html" %}
 
 {% block lab %}Лабораторная работа 9{% endblock %}
 
 {% block style %}
+<style>
+    /* ТОЛЬКО СТИЛИ ДЛЯ ЛАБОРАТОРНОЙ РАБОТЫ 9 */
+    
+    /* Переопределяем фон для этой страницы */
+    body {
+        background: #ffffff !important;
+    }
+    
+    /* Убираем ограничение ширины для main на этой странице */
+    main {
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Заголовок страницы подарков */
+    .header {
+        text-align: center;
+        color: #dc3545;
+        padding: 30px 20px;
+        margin: 20px auto;
+        max-width: 1200px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+        border: 2px solid #dee2e6;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-family: 'Georgia', serif;
+    }
+
+    /* Кнопка Деда Мороза */
+    .btn-santa-container {
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .btn-santa {
+        background: linear-gradient(145deg, #dc3545, #fd7e14);
+        color: white;
+        border: none;
+        padding: 16px 35px;
+        border-radius: 50px;
+        font-size: 1.2em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.25);
+        min-width: 220px;
+    }
+
+    .btn-santa:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(220, 53, 69, 0.4);
+    }
+
+    /* Статистика */
+    .stats {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px auto;
+        text-align: center;
+        max-width: 500px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .counter {
+        font-weight: bold;
+        color: #dc3545;
+        font-size: 1.3em;
+    }
+
+    /* КОНТЕЙНЕР ДЛЯ ПОДАРКОВ */
+    .gift-container-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        padding: 20px 0;
+    }
+
+    .gift-container {
+        position: relative;
+        width: 1400px;
+        height: 650px;
+        margin: 0 auto;
+        background: #f8f9fa;
+        border-radius: 20px;
+        border: 3px dashed #dee2e6;
+        overflow: hidden;
+        box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.05);
+    }
+
+    /* СТИЛИ ДЛЯ ОТДЕЛЬНЫХ КОРОБОК */
+    .gift-box {
+        position: absolute !important;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 2;
+        width: 120px;
+        text-align: center;
+        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+    }
+
+    .gift-box:hover:not(.opened) {
+        transform: scale(1.2) rotate(5deg);
+        z-index: 100;
+        filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.2));
+    }
+
+    .gift-box.opened {
+        opacity: 0.7;
+        cursor: default;
+    }
+
+    .gift-box.opened:hover {
+        transform: none !important;
+    }
+
+    .gift-box img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 3px solid #28a745;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+
+    .gift-box:hover:not(.opened) img {
+        transform: scale(1.1);
+        border-color: #dc3545;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    .gift-box.opened img {
+        filter: grayscale(0.5);
+        border-color: #6c757d;
+    }
+
+    .box-number {
+        background: #495057;
+        color: #ffffff;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 600;
+        display: inline-block;
+        border: 2px solid #6c757d;
+        margin-top: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .gift-box:hover:not(.opened) .box-number {
+        background: #dc3545;
+        border-color: #dc3545;
+        transform: translateY(-2px);
+    }
+
+    /* Иконка замка для коробок, требующих авторизации */
+    .requires-auth:before {
+        content: '🔒';
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #ffc107;
+        color: #212529;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9em;
+        box-shadow: 0 3px 8px rgba(255, 193, 7, 0.3);
+        z-index: 3;
+    }
+
+    /* Маркер открытой коробки */
+    .opened:after {
+        content: '✓';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        background: #28a745;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+        font-size: 1em;
+        z-index: 3;
+    }
+
+    /* АДАПТИВНОСТЬ */
+    @media (max-width: 1400px) {
+        .gift-container {
+            width: 100%;
+            max-width: 1400px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .gift-container {
+            width: 100%;
+            height: 500px;
+        }
+        
+        .gift-box {
+            width: 100px;
+        }
+        
+        .gift-box img {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block script %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Обработка кликов по коробкам
         document.querySelectorAll('.gift-box:not(.opened)').forEach(box => {
             box.addEventListener('click', async function() {
                 const id = this.dataset.id;
@@ -41,6 +275,7 @@
             });
         });
         
+        // Кнопка Деда Мороза
         const resetBtn = document.getElementById('santa-btn');
         if (resetBtn) {
             resetBtn.addEventListener('click', async function() {
@@ -66,8 +301,8 @@
 <h1 class="header">🎄 Новогодние Подарки 🎁</h1>
 
 {% if current_user.is_authenticated %}
-<div style="text-align:center; margin:20px;">
-    <button id="santa-btn" class="btn btn4">🎅 Дед Мороз</button>
+<div class="btn-santa-container">
+    <button id="santa-btn" class="btn-santa">🎅 Дед Мороз</button>
 </div>
 {% endif %}
 
@@ -76,20 +311,20 @@
     <p>Вы открыли: <span class="counter">{{ opened_in_session }}/3</span></p>
 </div>
 
-<div class="gift-container">
-    {% for box in boxes %}
-    <div class="gift-box {% if box.is_opened %}opened{% endif %} {% if box.auth_required %}requires-auth{% endif %}"
-         data-id="{{ box.id }}"
-         style="top: {{ box.pos_top }}px; left: {{ box.pos_left }}px;">
-        
-        <img src="/static/lab9/{{ box.id }}.png" alt="Коробка {{ box.id }}">
-        
-        {% if box.auth_required and not box.is_opened %}
-        
-        {% endif %}
-        
-        <div style="text-align:center;">#{{ box.id }}</div>
+<div class="gift-container-wrapper">
+    <div class="gift-container">
+        {% for box in boxes %}
+        <div class="gift-box {% if box.is_opened %}opened{% endif %} {% if box.auth_required %}requires-auth{% endif %}"
+             data-id="{{ box.id }}"
+             style="top: {{ box.pos_top }}px; left: {{ box.pos_left }}px;">
+            
+            <img src="/static/lab9/gift{{ box.id }}.jpg" 
+                 alt="Коробка {{ box.id }}"
+                 onerror="this.src='/static/lab9/default_gift.jpg'">
+            
+            <div class="box-number">#{{ box.id }}</div>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 {% endblock %}
