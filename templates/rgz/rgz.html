@@ -41,9 +41,9 @@
         {% for item in furniture %}
         <div class="product-card" data-category="{{ item.category }}">
             <div class="product-image">
-                <img src="{{ url_for('static', filename='images/' + item.image) }}" 
-                     alt="{{ item.name }}" 
-                     onerror="this.src='{{ url_for('static', filename='images/default.jpg') }}'">
+                <img src="{{ url_for('static', filename=item.image) }}" 
+                    alt="{{ item.name }}" 
+                    onerror="this.src='{{ url_for('static', filename='rgz/default.jpg') }}'">
             </div>
             <div class="product-info">
                 <h3>{{ item.name }}</h3>
@@ -92,9 +92,9 @@
                     const productHTML = `
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="/static/images/${item.image}" 
-                                     alt="${item.name}" 
-                                     onerror="this.src='/static/images/default.jpg'">
+                                <img src="/static/${item.image}" 
+                                    alt="${item.name}" 
+                                    onerror="this.src='/static/rgz/default.jpg'">
                             </div>
                             <div class="product-info">
                                 <h3>${item.name}</h3>
