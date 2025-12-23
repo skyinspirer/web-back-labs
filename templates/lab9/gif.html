@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block lab %}Поздравление!{% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block main %}
+<div class="congrats-container">
+    <h1>🎉 Поздравляем! 🎉</h1>
+    <p>Вы открыли коробку №{{ box_id }}</p>
+    
+    <div class="message-box">
+        {{ box.message }}
+    </div>
+    
+    <h2>Ваш подарок:</h2>
+    <img src="{{ img_path }}" alt="Подарок" class="gift-image"
+         onerror="this.src='/static/lab9/default_gift.jpg'">
+    
+    <div>
+        <a href="/lab9/" class="btn btn4">Вернуться к коробкам</a>
+    </div>
+</div>
+{% endblock %}

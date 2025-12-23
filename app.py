@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from db import db
 from db.models import users
 from flask_login import LoginManager
+import random
 import os 
 from os import path
 from lab1 import lab1

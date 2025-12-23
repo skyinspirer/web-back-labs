@@ -1,0 +1,82 @@
+{
+  "0": {
+    "id": 0,
+    "left": 78,
+    "top": 52,
+    "congratulation": "Желаем здоровья, счастья и удачи в новом году!",
+    "image": "/static/lab9/gift2.jpg",
+    "is_opened": true
+  },
+  "1": {
+    "id": 1,
+    "left": 17,
+    "top": 20,
+    "congratulation": "Успехов во всех начинаниях в новом году!",
+    "image": "/static/lab9/gift6.jpg",
+    "is_opened": true
+  },
+  "2": {
+    "id": 2,
+    "left": 14,
+    "top": 45,
+    "congratulation": "Процветания и финансового благополучия!",
+    "image": "/static/lab9/gift9.jpg",
+    "is_opened": false
+  },
+  "3": {
+    "id": 3,
+    "left": 53,
+    "top": 40,
+    "congratulation": "Пусть новый год принесёт много радостных моментов!",
+    "image": "/static/lab9/gift3.jpg",
+    "is_opened": true
+  },
+  "4": {
+    "id": 4,
+    "left": 48,
+    "top": 68,
+    "congratulation": "Счастья, любви и исполнения желаний!",
+    "image": "/static/lab9/gift4.jpg",
+    "is_opened": false
+  },
+  "5": {
+    "id": 5,
+    "left": 51,
+    "top": 10,
+    "congratulation": "Пусть ангел-хранитель оберегает вас весь год!",
+    "image": "/static/lab9/gift8.jpg",
+    "is_opened": false
+  },
+  "6": {
+    "id": 6,
+    "left": 72,
+    "top": 17,
+    "congratulation": "Мира, добра и благополучия вашей семье!",
+    "image": "/static/lab9/gift7.jpg",
+    "is_opened": false
+  },
+  "7": {
+    "id": 7,
+    "left": 84,
+    "top": 36,
+    "congratulation": "Ярких впечатлений и незабываемых моментов!",
+    "image": "/static/lab9/gift10.jpg",
+    "is_opened": false
+  },
+  "8": {
+    "id": 8,
+    "left": 32,
+    "top": 72,
+    "congratulation": "С Новым годом! Пусть сбудутся все ваши мечты!",
+    "image": "/static/lab9/gift1.jpg",
+    "is_opened": false
+  },
+  "9": {
+    "id": 9,
+    "left": 32,
+    "top": 43,
+    "congratulation": "Пусть каждый день нового года будет особенным!",
+    "image": "/static/lab9/gift5.jpg",
+    "is_opened": false
+  }
+}

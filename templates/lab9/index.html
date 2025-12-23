@@ -1,11 +1,94 @@
 {% extends "base.html" %}
 
-{% block number_lab %}Лабораторная работа 9{% endblock %}
+{% block lab %}Лабораторная работа 9{% endblock %}
 
-{% block script %}   {% endblock %}
+{% block style %}
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.gift-box:not(.opened)').forEach(box => {
+            box.addEventListener('click', async function() {
+                const id = this.dataset.id;
+                
+                const response = await fetch('/lab9/open_box', {
+                    method: 'POST',
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ box_id: parseInt(id) })
+                });
+                
+                const result = await response.json();
+                
+                if (result.limit_exceeded) {
+                    alert("Вы уже открыли 3 коробки!");
+                    return;
+                }
+                
+                if (result.auth_needed) {
+                    alert("Этот подарок доступен только авторизованным пользователям.");
+                    return;
+                }
+                
+                if (result.already_opened) {
+                    alert("Эта коробка уже открыта!");
+                    return;
+                }
+                
+                if (result.success) {
+                    window.location.href = result.redirect_url;
+                }
+            });
+        });
+        
+        const resetBtn = document.getElementById('santa-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', async function() {
+                if (!confirm('Дед Мороз наполнит все коробки заново. Продолжить?')) {
+                    return;
+                }
+                
+                const response = await fetch('/lab9/reset_boxes', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
 
 {% block main %}
+<h1 class="header">🎄 Новогодние Подарки 🎁</h1>
 
-    <h1>Поздравления</h1>
+{% if current_user.is_authenticated %}
+<div style="text-align:center; margin:20px;">
+    <button id="santa-btn" class="btn btn4">🎅 Дед Мороз</button>
+</div>
+{% endif %}
 
+<div class="stats">
+    <p>Неоткрытых коробок: <span class="counter">{{ unopened_count }}/10</span></p>
+    <p>Вы открыли: <span class="counter">{{ opened_in_session }}/3</span></p>
+</div>
+<div class="gift-container">
+    {% for box in boxes %}
+    <div class="gift-box {% if box.is_opened %}opened{% endif %} {% if box.auth_required %}requires-auth{% endif %}"
+         data-id="{{ box.id }}"
+         style="top: {{ box.pos_top }}px; left: {{ box.pos_left }}px;">
+        
+        <img src="/static/lab9/{{ box.id }}.png" alt="Коробка {{ box.id }}">
+        
+        {% if box.auth_required and not box.is_opened %}
+        
+        {% endif %}
+        
+        <div style="text-align:center;">#{{ box.id }}</div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
