@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+    <h2 class="block2">Все статьи</h2>
+    
+    {% if current_user.is_authenticated %}
+    <div class="login-form login-container">
+        <p>Вы вошли как: <strong>{{ current_user.login }}</strong></p>
+        <hr>
+        <a href="/lab8/logout" class="btn nazad">Выйти</a>
+    </div>
+    
+    <div>
+        <a href="/lab8/" class="btn nazad">Главная</a>
+        <a href="/lab8/create" class="btn nazad">Новая статья</a>
+        <a href="/lab8/search" class="btn nazad">Поиск</a>
+    </div>
+    {% else %}
+    <div class="login-form login-container">
+        <p>Вы не авторизованы. Показаны только публичные статьи.</p><hr>
+        <div>
+            <a href="/lab8/" class="btn nazad">Главная</a>
+            <a href="/lab8/login" class="btn nazad">Войти</a>
+            <a href="/lab8/register" class="btn nazad">Регистрация</a>
+            <a href="/lab8/search" class="btn nazad">Поиск</a>
+        </div>
+    </div>
+    {% endif %}
+    <br>
+    {% if articles %}
+    <div class="login-form login-container">
+        {% for article in articles %}
+        <div>
+            <div>
+                {% if not article.is_public %}<hr>
+                <b>Личная</b>
+                {% else %}
+                <b>Публичная</b>
+                {% endif %}
+                <p>Заголовок статьи - {{ article.title }}</p>
+            </div>
+            
+            <div>
+                <p>Текст статьи - {{ article.article_text }}</p>
+            </div>
+            
+            {% if current_user.is_authenticated and article.login_id == current_user.id %}
+            <div>
+                <a href="/lab8/edit/{{ article.id }}"><button class="btn btn6">Редактировать</button></a>
+                <a href="/lab8/delete/{{ article.id }}"><button class="btn btn3">Удалить</button></a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div>Статьи не найдены</div>
+    {% endif %}
+{% endblock main %}

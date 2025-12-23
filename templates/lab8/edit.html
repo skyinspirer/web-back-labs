@@ -3,36 +3,35 @@
 {% block number_lab %}Лабораторная работа 8{% endblock %}
 
 {% block main %}
-    <h2 class="block2">Создать новую статью</h2>
+    <h2 class="block2">Редактировать статью</h2>
     
     <form method="POST" class="login-form login-container">
         <div>
             <label for="title">Заголовок статьи:</label>
             <input class="form-input" type="text" id="title" name="title" 
-                   placeholder="Введите заголовок статьи" maxlength="50" required>
+                   value="{{ article.title }}" maxlength="50" required>
         </div>
         
         <div>
             <label for="text">Текст статьи:</label>
-            <textarea class="form-input" id="text" name="text" 
-                      placeholder="Напишите содержание статьи здесь..." required></textarea>
+            <textarea class="form-input" id="text" name="text" required>{{ article.article_text }}</textarea>
         </div>
         
         <div class="form-check">
             <label>
-                <input type="checkbox" name="is_public" checked>
+                <input type="checkbox" name="is_public" {% if article.is_public %}checked{% endif %}>
                 Сделать статью публичной (будет видна всем пользователям)
             </label>
         </div>
         
         <div class="form-check">
             <label>
-                <input type="checkbox" name="is_favorite">
+                <input type="checkbox" name="is_favorite" {% if article.is_favorite %}checked{% endif %}>
                 Добавить в избранное
             </label>
         </div>
         
-        <button type="submit" class="btn btn2">Создать статью</button>
+        <button type="submit" class="btn btn2">Сохранить изменения</button>
         <a href="/lab8/articles" class="btn btn3">Отмена</a>
     </form>
     
@@ -40,7 +39,7 @@
     <div class="error">{{ error }}</div>
     {% endif %}
 
-    <div>
+    <div class="spisoklab">
         <a class="btn nazad" href="/lab8/">Главная</a>
         <a class="btn nazad" href="/lab8/articles">Все статьи</a>
     </div>

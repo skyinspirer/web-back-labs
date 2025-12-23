@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block number_lab %}Лабораторная работа 8{% endblock %}
+
+{% block main %}
+    <h2 class="block2">Поиск статей</h2>
+    
+    <form method="POST" class="login-form login-container">
+        <div>
+            <label for="query">Поисковой запрос:</label>
+            <input class="form-input" type="text" id="query" name="query" placeholder="Введите текст для поиска..." value="{{ search_query or '' }}">
+        </div>
+        
+        <button type="submit" class="btn nazad">Найти статьи</button>
+    </form>
+
+    {{ error }}
+    
+    {% if search_query and count is defined %}
+    <div class="login-form login-container">
+        <h3>Результаты поиска "{{ search_query }}":</h3>
+        <p>Найдено статей: {{ count }}</p>
+        
+        {% if articles %}
+        <div class="articles-list">
+            {% for article in articles %}
+            <div>
+                <div>
+                {% if not article.is_public %}<hr>
+                <b>Личная</b>
+                {% else %}
+                <b>Публичная</b>
+                {% endif %}
+                <p>Заголовок статьи - {{ article.title }}</p>
+            </div>
+            <div>
+                <p>Текст статьи - {{ article.article_text }}</p>
+            </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div>
+            <p>Статьи по запросу "{{ search_query }}" не найдены</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div>
+        <a href="/lab8/" class="btn nazad">Главная</a>
+        <a href="/lab8/articles" class="btn nazad">Все статьи</a>
+    </div>
+{% endblock main %}
