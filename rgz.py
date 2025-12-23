@@ -1,10 +1,11 @@
 from flask import Blueprint, url_for, request, redirect, abort, render_template, make_response, session, current_app, jsonify
 import json
+import functools
+import re
 from werkzeug.security import check_password_hash, generate_password_hash
 from db import db
 from db.models import users, Product, CartItem, Order, OrderItem
 from flask_login import login_user, login_required, current_user, logout_user
-import functools
 
 rgz = Blueprint('rgz', __name__)
 
@@ -25,6 +26,16 @@ def jsonrpc(f):
         method = data.get('method')
         params = data.get('params', {})
         id = data.get('id')
+        
+        if not method:
+            return jsonify({
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': -32600,
+                    'message': 'Invalid Request: method is required'
+                },
+                'id': id
+            })
         
         # Вызываем метод с параметрами
         try:
@@ -48,14 +59,14 @@ def jsonrpc(f):
     
     return decorated_function
 
-# Главная страница
+# Главная страница магазина
 @rgz.route("/rgz/")
 def main():
-    # Показываем товары
+    # Показываем товары (первые 12)
     products = Product.query.limit(12).all()
     return render_template('rgz/rgz.html', products=products, user=current_user)
 
-# Регистрация (уже есть)
+# Регистрация (с валидацией)
 @rgz.route('/rgz/register/', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
@@ -70,10 +81,13 @@ def register():
     if not password_form:
         return render_template('rgz/register.html', error='Пароль не должен быть пустым')
     
-    # Валидация логина (только латинские буквы, цифры и некоторые символы)
-    import re
+    # Валидация логина
     if not re.match(r'^[a-zA-Z0-9_\-\.]+$', login_form):
         return render_template('rgz/register.html', error='Логин может содержать только латинские буквы, цифры, точки, дефисы и подчеркивания')
+    
+    # Валидация длины
+    if len(login_form) < 3 or len(login_form) > 30:
+        return render_template('rgz/register.html', error='Логин должен быть от 3 до 30 символов')
 
     login_exists = users.query.filter_by(login=login_form).first()
     if login_exists:
@@ -88,7 +102,7 @@ def register():
     login_user(new_user, remember=False)
     return redirect('/rgz/')
 
-# Вход (уже есть)
+# Вход
 @rgz.route('/rgz/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -123,7 +137,7 @@ def logout():
     logout_user()
     return redirect('/rgz/')
 
-# Страница корзины
+# Корзина
 @rgz.route('/rgz/cart')
 @login_required
 def cart():
@@ -137,6 +151,8 @@ def cart():
 def delete_account():
     # Удаляем корзину пользователя
     CartItem.query.filter_by(user_id=current_user.id).delete()
+    # Удаляем заказы пользователя
+    Order.query.filter_by(user_id=current_user.id).delete()
     # Удаляем пользователя
     user = users.query.get(current_user.id)
     db.session.delete(user)
@@ -156,12 +172,21 @@ def api(method, params):
         # Валидация
         if not product_id:
             raise Exception('Product ID is required')
-        if quantity <= 0:
-            raise Exception('Quantity must be positive')
+        
+        try:
+            quantity = int(quantity)
+            if quantity <= 0:
+                raise Exception('Quantity must be positive')
+        except ValueError:
+            raise Exception('Quantity must be a number')
         
         product = Product.query.get(product_id)
         if not product:
             raise Exception('Product not found')
+        
+        # Валидация цены
+        if product.price <= 0:
+            raise Exception('Invalid product price')
         
         if product.stock < quantity:
             raise Exception('Not enough stock')
@@ -206,8 +231,12 @@ def api(method, params):
         if not cart_item_id or quantity is None:
             raise Exception('Cart item ID and quantity are required')
         
-        if quantity <= 0:
-            raise Exception('Quantity must be positive')
+        try:
+            quantity = int(quantity)
+            if quantity <= 0:
+                raise Exception('Quantity must be positive')
+        except ValueError:
+            raise Exception('Quantity must be a number')
         
         cart_item = CartItem.query.get(cart_item_id)
         if not cart_item or cart_item.user_id != current_user.id:
@@ -278,6 +307,7 @@ def api(method, params):
     elif method == 'get_products':
         category = params.get('category')
         search = params.get('search')
+        limit = params.get('limit', 50)
         
         query = Product.query
         
@@ -287,17 +317,27 @@ def api(method, params):
         if search:
             query = query.filter(Product.name.ilike(f'%{search}%'))
         
-        products = query.limit(params.get('limit', 50)).all()
+        products = query.limit(limit).all()
         return [product.to_dict() for product in products]
     
     else:
         raise Exception(f'Method {method} not found')
 
-# Инициализация товаров (запустить один раз для добавления товаров)
+# Создание таблиц (одноразовый вызов)
+@rgz.route('/rgz/create_tables')
+def create_tables():
+    try:
+        # Создаем только таблицы для RGZ
+        db.create_all()
+        return "Таблицы RGZ успешно созданы! <a href='/rgz/init_products'>Добавить товары</a>"
+    except Exception as e:
+        return f"Ошибка при создании таблиц: {str(e)}"
+
+# Инициализация товаров (одноразовый вызов)
 @rgz.route('/rgz/init_products')
 def init_products():
     if Product.query.count() > 0:
-        return "Products already initialized"
+        return "Товары уже добавлены. <a href='/rgz/'>Перейти в магазин</a>"
     
     furniture_products = [
         # Диваны
@@ -370,4 +410,4 @@ def init_products():
         db.session.add(product)
     
     db.session.commit()
-    return "Products initialized successfully"
+    return "30 товаров успешно добавлены! <a href='/rgz/'>Перейти в магазин</a>"

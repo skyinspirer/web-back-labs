@@ -3,14 +3,14 @@
 {% block number_lab %}Расчетно-графическое задание{% endblock %}
 
 {% block main %}
-    <div style="text-align: right; padding: 10px; background-color: #f0f0f0;">
-        <strong>Студент: Иванов Иван Иванович</strong><br>
-        <strong>Группа: ПИЖ-б-о-22-1</strong>
+    <div style="text-align: right; padding: 10px; background-color: #f0f0f0; margin-bottom: 20px;">
+        <strong>Студент: [Ваше ФИО]</strong><br>
+        <strong>Группа: [Ваша группа]</strong>
     </div>
 
     <h1>Корзина</h1>
     
-    <div>
+    <div style="margin-bottom: 20px;">
         <a href="/rgz/">Назад к товарам</a> |
         <a href="/rgz/logout">Выход</a>
     </div>
@@ -18,7 +18,7 @@
     {% if cart_items %}
         <div id="cart-items">
             {% for item in cart_items %}
-            <div class="cart-item" style="border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 5px;">
+            <div class="cart-item" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; background-color: #f9f9f9;">
                 <h3>{{ item.product.name }}</h3>
                 <p>Цена за шт.: {{ "%.2f"|format(item.product.price) }} руб.</p>
                 <p>Количество: 
@@ -27,24 +27,28 @@
                            value="{{ item.quantity }}" 
                            min="1" 
                            max="{{ item.product.stock + item.quantity }}"
-                           style="width: 60px;"
+                           style="width: 60px; padding: 5px;"
                            onchange="updateCartItem({{ item.id }}, this.value)">
                 </p>
                 <p>Итого: {{ "%.2f"|format(item.product.price * item.quantity) }} руб.</p>
-                <button onclick="removeFromCart({{ item.id }})">Удалить</button>
+                <button onclick="removeFromCart({{ item.id }})" 
+                        style="padding: 5px 10px; background-color: #f44336; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                    Удалить
+                </button>
             </div>
             {% endfor %}
             
-            <div style="margin-top: 20px; font-size: 1.2em;">
+            <div style="margin-top: 20px; font-size: 1.2em; padding: 15px; background-color: #e8f5e8; border-radius: 5px;">
                 <strong>Общая сумма: {{ "%.2f"|format(total) }} руб.</strong>
             </div>
             
-            <button onclick="checkout()" style="padding: 10px 20px; font-size: 1.1em; margin-top: 20px;">
+            <button onclick="checkout()" 
+                    style="padding: 10px 20px; font-size: 1.1em; margin-top: 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 Оформить заказ
             </button>
         </div>
     {% else %}
-        <p>Ваша корзина пуста.</p>
+        <p style="padding: 20px; background-color: #f0f0f0; border-radius: 5px;">Ваша корзина пуста.</p>
     {% endif %}
 
     <script>
@@ -120,7 +124,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.result && data.result.success) {
-                alert('Заказ оформлен! Номер заказа: ' + data.result.order_id);
+                alert('Заказ оформлен! Номер заказа: ' + data.result.order_id + '\nСумма: ' + data.result.total + ' руб.');
                 window.location.href = '/rgz/';
             } else if (data.error) {
                 alert('Ошибка: ' + data.error.message);

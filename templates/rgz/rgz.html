@@ -3,20 +3,20 @@
 {% block number_lab %}Расчетно-графическое задание{% endblock %}
 
 {% block main %}
-    <div style="text-align: right; padding: 10px; background-color: #f0f0f0;">
-        <strong>Студент: Иванов Иван Иванович</strong><br>
-        <strong>Группа: ПИЖ-б-о-22-1</strong>
+    <div style="text-align: right; padding: 10px; background-color: #f0f0f0; margin-bottom: 20px;">
+        <strong>Студент: [Ваше ФИО]</strong><br>
+        <strong>Группа: [Ваша группа]</strong>
     </div>
 
     <h1>Онлайн-магазин "Мебель для дома"</h1>
 
-    <div class="user-info">
+    <div class="user-info" style="margin-bottom: 20px;">
         {% if current_user.is_authenticated %}
             <p>Добро пожаловать, {{ current_user.login }}!</p>
             <a href="/rgz/cart">Корзина</a> |
             <a href="/rgz/logout">Выход</a>
             <form action="/rgz/delete_account" method="POST" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить аккаунт?');">
-                <button type="submit" style="color: red; background: none; border: none; cursor: pointer;">Удалить аккаунт</button>
+                <button type="submit" style="color: red; background: none; border: none; cursor: pointer; text-decoration: underline;">Удалить аккаунт</button>
             </form>
         {% else %}
             <p>Вы не авторизованы. Только просмотр товаров.</p>
@@ -29,7 +29,7 @@
     
     <div id="products-list">
         {% for product in products %}
-        <div class="product-card" style="border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 5px;">
+        <div class="product-card" style="border: 1px solid #ddd; padding: 15px; margin: 10px; border-radius: 5px; background-color: #f9f9f9;">
             <h3>{{ product.name }}</h3>
             <p>{{ product.description }}</p>
             <p><strong>Цена: {{ "%.2f"|format(product.price) }} руб.</strong></p>
@@ -39,10 +39,11 @@
             {% if current_user.is_authenticated %}
                 <div class="product-actions">
                     <button onclick="addToCart({{ product.id }})" 
-                            {% if product.stock == 0 %}disabled{% endif %}>
+                            {% if product.stock == 0 %}disabled{% endif %}
+                            style="padding: 8px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 3px; cursor: pointer;">
                         Добавить в корзину
                     </button>
-                    <input type="number" id="quantity-{{ product.id }}" value="1" min="1" max="{{ product.stock }}" style="width: 60px;">
+                    <input type="number" id="quantity-{{ product.id }}" value="1" min="1" max="{{ product.stock }}" style="width: 60px; padding: 5px;">
                 </div>
             {% else %}
                 <p><em>Для добавления в корзину необходимо авторизоваться</em></p>
@@ -53,7 +54,8 @@
 
     <script>
     function addToCart(productId) {
-        const quantity = document.getElementById('quantity-' + productId).value;
+        const quantityInput = document.getElementById('quantity-' + productId);
+        const quantity = quantityInput ? quantityInput.value : 1;
         
         fetch('/rgz/api', {
             method: 'POST',
@@ -83,33 +85,5 @@
             alert('Ошибка при добавлении в корзину');
         });
     }
-    
-    function loadProducts(category = '') {
-        fetch('/rgz/api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                method: 'get_products',
-                params: {
-                    category: category,
-                    limit: 50
-                },
-                id: 1
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result) {
-                updateProductsList(data.result);
-            }
-        });
-    }
-    
-    function updateProductsList(products) {
-        // Обновление списка товаров (можно реализовать при необходимости)
-    }
     </script>
-{% endblock %}  
+{% endblock %}
