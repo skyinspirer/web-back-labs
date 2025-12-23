@@ -219,3 +219,6 @@ def search_articles():
                          articles=articles_found, 
                          search_query=search_query,
                          count=len(articles_found))
+
+
+
