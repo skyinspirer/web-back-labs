@@ -1,6 +1,6 @@
 {% extends "lab8/base1.html" %}
 
-{% block number_lab %}Лабораторная работа 5{% endblock %}
+{% block number_lab %}Лабораторная работа 8{% endblock %}
 
 {% block main %}
     <h2 class="block2">Все статьи</h2>
@@ -34,11 +34,16 @@
         {% for article in articles %}
         <div>
             <div>
-                {% if not article.is_public %}<hr>
+                {% if article.is_favorite %}
+                <span style="color: #f0ad4e; font-weight: bold;">★ Избранная</span><br>
+                {% endif %}
+                
+                {% if not article.is_public %}
                 <b>Личная</b>
                 {% else %}
                 <b>Публичная</b>
                 {% endif %}
+                
                 <p>Заголовок статьи - {{ article.title }}</p>
             </div>
             
@@ -48,16 +53,25 @@
             
             {% if current_user.is_authenticated and article.login_id == current_user.id %}
             <div>
-                <a href="/lab8/edit/{{ article.id }}"><button class="btn btn6">Редактировать</button></a>
-                <a href="/lab8/delete/{{ article.id }}"><button class="btn btn3">Удалить</button></a>
+                {% if article.is_favorite %}
+                <a href="/lab8/toggle_favorite/{{ article.id }}" class="btn" style="background-color: #f0ad4e; color: white;">
+                    Убрать из избранного
+                </a>
+                {% else %}
+                <a href="/lab8/toggle_favorite/{{ article.id }}" class="btn" style="background-color: #337ab7; color: white;">
+                    Добавить в избранное
+                </a>
+                {% endif %}
+                
+                <a href="/lab8/edit/{{ article.id }}" class="btn btn6">Редактировать</a>
+                <a href="/lab8/delete/{{ article.id }}" class="btn btn3">Удалить</a>
             </div>
             {% endif %}
         </div>
+        {% if not loop.last %}<hr>{% endif %}
         {% endfor %}
     </div>
     {% else %}
     <div>Статьи не найдены</div>
     {% endif %}
 {% endblock main %}
-
-

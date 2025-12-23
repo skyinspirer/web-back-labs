@@ -69,23 +69,23 @@ def login():
             return redirect('/lab8/')
         
         return render_template('lab8/login.html', error='Ошибка входа: логин и/или пароль неверны')
-    
+
 
 @lab8.route('/lab8/articles')
 def article_list():
-    public_articles = articles.query.filter_by(is_public=True).all()
-    
     if current_user.is_authenticated:
-        user_articles = articles.query.filter_by(login_id=current_user.id).all()
-        all_articles = []
-        article_ids = set()
+        # Статьи текущего пользователя, отсортированные: сначала избранные
+        user_articles = articles.query.filter_by(login_id=current_user.id)\
+            .order_by(articles.is_favorite.desc()).all()
         
-        for article in public_articles + user_articles:
-            if article.id not in article_ids:
-                article_ids.add(article.id)
-                all_articles.append(article)
+        # Публичные статьи других пользователей
+        public_articles = articles.query.filter_by(is_public=True)\
+            .filter(articles.login_id != current_user.id).all()
+        
+        all_articles = list(user_articles) + list(public_articles)
     else:
-        all_articles = public_articles
+        # Для неавторизованных только публичные статьи
+        all_articles = articles.query.filter_by(is_public=True).all()
     
     return render_template('lab8/articles.html', articles=all_articles)
 
@@ -175,6 +175,21 @@ def delete_article(article_id):
     return redirect('/lab8/articles')
 
 
+@lab8.route('/lab8/toggle_favorite/<int:article_id>')
+@login_required
+def toggle_favorite(article_id):
+    article = articles.query.filter_by(id=article_id, login_id=current_user.id).first()
+    
+    if not article:
+        abort(404)
+    
+    # Переключаем состояние избранного
+    article.is_favorite = not article.is_favorite
+    db.session.commit()
+    
+    return redirect('/lab8/articles')
+
+
 @lab8.route('/lab8/search', methods=['GET', 'POST'])
 def search_articles():
     if request.method == 'GET':
@@ -188,14 +203,16 @@ def search_articles():
     search_pattern = f"%{search_query}%"
     
     if current_user.is_authenticated:
+        # Статьи текущего пользователя, отсортированные по избранному
         user_articles = articles.query.filter(
             articles.login_id == current_user.id,
             or_(
                 articles.title.ilike(search_pattern),
                 articles.article_text.ilike(search_pattern)
             )
-        ).all()
+        ).order_by(articles.is_favorite.desc()).all()
         
+        # Публичные статьи других пользователей
         public_articles = articles.query.filter(
             articles.is_public == True,
             articles.login_id != current_user.id,
@@ -219,6 +236,3 @@ def search_articles():
                          articles=articles_found, 
                          search_query=search_query,
                          count=len(articles_found))
-
-
-
