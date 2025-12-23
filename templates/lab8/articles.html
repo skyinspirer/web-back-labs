@@ -34,8 +34,8 @@
         {% for article in articles %}
         <div>
             <div>
-                {% if article.is_favorite %}
-                <span style="color: #f0ad4e; font-weight: bold;">★ Избранная</span><br>
+                {% if article.is_favorite and current_user.is_authenticated and article.login_id == current_user.id %}
+                <span style="color: #f0ad4e; font-weight: bold;">Избранная</span><br>
                 {% endif %}
                 
                 {% if not article.is_public %}
