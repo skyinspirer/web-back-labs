@@ -241,14 +241,14 @@ def api(method, params):
         return {"success": True, "message": "Cart cleared"}
     
     elif method == "checkout":
-        # Оформление покупки
+    # Оформление покупки
         cart = carts.get(user_id, [])
         
         if not cart:
             return {"error": {"code": -32003, "message": "Cart is empty"}}
         
-        # Здесь можно добавить логику обработки покупки
-        # Например, сохранение заказа, отправка email и т.д.
+        # Генерируем ID заказа
+        order_id = f"ORD-{user_id}-{int(time.time())}"
         
         # Очищаем корзину после покупки
         carts[user_id] = []
@@ -256,11 +256,7 @@ def api(method, params):
         return {
             "success": True, 
             "message": "Purchase completed successfully",
-            "order_details": {
-                "items": cart,
-                "total": sum(item["price"] * item.get("quantity", 1) for item in cart),
-                "order_id": f"ORD-{user_id}-{int(time.time())}"
-            }
+            "order": {"order_id": order_id}
         }
     
     elif method == "get_categories":
@@ -281,3 +277,10 @@ def view_cart():
 def checkout_page():
     """Страница оформления заказа"""
     return render_template('rgz/checkout.html', current_user=current_user)
+
+
+@rgz.route('/rgz/order-confirmation/<order_id>')
+@login_required
+def order_confirmation(order_id):
+    """Простая страница подтверждения заказа"""
+    return render_template('rgz/order_confirmation.html', order_id=order_id)

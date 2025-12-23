@@ -107,80 +107,69 @@
         }
         
         function loadOrderTotal() {
-            fetch('/rgz/api', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    jsonrpc: '2.0',
-                    method: 'get_cart_total',
-                    params: {},
-                    id: 1
+                fetch('/rgz/api', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'get_cart_total',
+                        params: {},
+                        id: 1
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.result) {
-                    document.getElementById('order-summary').innerHTML = `
-                        <h3>Сумма заказа: ${data.result.total} руб.</h3>
-                        <p>Количество товаров: ${data.result.item_count}</p>
-                    `;
-                }
-            });
-        }
-        
-        function processCheckout(event) {
-            event.preventDefault();
-            
-            const formData = {
-                name: document.getElementById('name').value,
-                address: document.getElementById('address').value,
-                phone: document.getElementById('phone').value,
-                email: document.getElementById('email').value,
-                payment: document.getElementById('payment').value
-            };
-            
-            // Проверяем заполненность формы
-            if (!formData.name || !formData.address || !formData.phone || !formData.email || !formData.payment) {
-                alert('Пожалуйста, заполните все обязательные поля');
-                return;
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result) {
+                        document.getElementById('order-summary').innerHTML = `
+                            <h3>Сумма заказа: ${data.result.total} руб.</h3>
+                            <p>Количество товаров: ${data.result.item_count}</p>
+                        `;
+                    }
+                });
             }
             
-            // Отправляем запрос на оформление заказа
-            fetch('/rgz/api', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    jsonrpc: '2.0',
-                    method: 'checkout',
-                    params: {customer_info: formData},
-                    id: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.result && data.result.success) {
-                    // Показываем подтверждение заказа
-                    document.getElementById('checkout-form').innerHTML = `
-                        <div class="alert alert-success">
-                            <h3>Заказ успешно оформлен!</h3>
-                            <p>Номер вашего заказа: ${data.result.order_details.order_id}</p>
-                            <p>Сумма заказа: ${data.result.order_details.total} руб.</p>
-                            <p>Наш менеджер свяжется с вами для подтверждения заказа.</p>
-                            <a href="/rgz/" class="btn btn-primary">Вернуться в магазин</a>
-                        </div>
-                    `;
-                    
-                    document.getElementById('checkout-container').innerHTML = '';
-                    document.getElementById('order-summary').innerHTML = '';
-                } else if (data.error) {
-                    alert('Ошибка при оформлении заказа: ' + data.error.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Ошибка при обработке заказа');
-            });
+            function processCheckout(event) {
+        event.preventDefault();
+        
+        const formData = {
+            name: document.getElementById('name').value,
+            address: document.getElementById('address').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            payment: document.getElementById('payment').value
+        };
+        
+        // Проверяем заполненность формы
+        if (!formData.name || !formData.address || !formData.phone || !formData.email || !formData.payment) {
+            alert('Пожалуйста, заполните все обязательные поля');
+            return;
         }
+        
+        // Отправляем запрос на оформление заказа
+        fetch('/rgz/api', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'checkout',
+                params: {customer_info: formData},
+                id: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result && data.result.success) {
+                // ПЕРЕНАПРАВЛЯЕМ на простую страницу подтверждения
+                window.location.href = `/rgz/order-confirmation/${data.result.order.order_id}`;
+            } else if (data.error) {
+                alert('Ошибка при оформлении заказа: ' + data.error.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при обработке заказа');
+        });
+    }
         
         // Загружаем информацию при открытии страницы
         document.addEventListener('DOMContentLoaded', loadCheckoutInfo);
