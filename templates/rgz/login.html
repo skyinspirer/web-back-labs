@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block %}Расчетно-графическое задание{% endblock %}
+
+{% block main %}
+    
+    <h2 class="block2">Вход в систему</h2>
+    <form class="login-form login-container" action="/rgz/login" method="post">
+        <div>
+            <label>
+                Логин: <br><input class="form-input" type="text" name="login">
+            </label>
+        </div>
+
+        <div>
+            <label>
+                Пароль: <br><input class="form-input" type="password" name="password">
+            </label>
+        </div>
+        {{ error }}<br>
+
+        <input type="checkbox" name="remember" value="yes" id="remember">
+        <label for="remember">Запомнить меня</label>
+
+        <button class="btn btn-primary" type="submit">Вход</button>
+    </form>
+
+{% endblock %}
+
+
+
