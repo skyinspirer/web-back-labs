@@ -75,6 +75,7 @@
     <p>Неоткрытых коробок: <span class="counter">{{ unopened_count }}/10</span></p>
     <p>Вы открыли: <span class="counter">{{ opened_in_session }}/3</span></p>
 </div>
+
 <div class="gift-container">
     {% for box in boxes %}
     <div class="gift-box {% if box.is_opened %}opened{% endif %} {% if box.auth_required %}requires-auth{% endif %}"

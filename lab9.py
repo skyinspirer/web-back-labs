@@ -1,15 +1,12 @@
-from flask import Blueprint, url_for, request, redirect, abort, render_template, make_response, session, current_app, jsonify
+from flask import Blueprint, render_template, request, jsonify, session, redirect
 from db import db
-
 from db.models import gift_box
 from flask_login import current_user, login_required
 import random
 
-
 lab9 = Blueprint('lab9', __name__)
 
-
-@lab9.route("/lab9/")
+@lab9.route('/lab9/')
 def main():
     boxes = gift_box.query.all()
     unopened_count = gift_box.query.filter_by(is_opened=False).count()
@@ -47,7 +44,7 @@ def open_box():
     
     return jsonify({
         'success': True,
-        'redirect_url': f'/lab9/gif/{box_id}'
+        'redirect_url': f'/lab9/congratulation/{box_id}'
     })
 
 @lab9.route('/lab9/reset_boxes', methods=['POST'])
@@ -66,8 +63,8 @@ def reset_boxes():
     db.session.commit()
     return jsonify({'success': True})
 
-@lab9.route('/lab9/gif/<int:box_id>')
-def gif(box_id):
+@lab9.route('/lab9/congratulation/<int:box_id>')
+def congratulation(box_id):
     box = gift_box.query.get(box_id)
     if not box or not box.is_opened:
         return redirect('/lab9/')
@@ -75,7 +72,7 @@ def gif(box_id):
     gift_id = box_id + 10
     img_path = f'/static/lab9/{gift_id}.jpg'
     
-    return render_template('lab9/gif.html',
+    return render_template('lab9/congratulation.html',
                            box=box,
                            img_path=img_path,
                            box_id=box_id)

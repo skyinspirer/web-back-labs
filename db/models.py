@@ -15,7 +15,6 @@ class articles(db.Model, UserMixin):
     is_public = db.Column(db.Boolean)
     likes = db.Column(db.Integer)
 
-
 class gift_box(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pos_top = db.Column(db.Integer, nullable=False)
