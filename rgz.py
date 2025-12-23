@@ -13,7 +13,7 @@ rgz = Blueprint('rgz', __name__)
 
 
 @rgz.route("/rgz/")
-def rgz():
+def main():
     return render_template('rgz/rgz.html')
 
 
