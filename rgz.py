@@ -1,5 +1,6 @@
 from flask import Blueprint, url_for, request, redirect, abort, render_template, make_response, session, current_app, jsonify
 import json
+import time  # ДОБАВЛЕНО: импорт модуля time
 from werkzeug.security import check_password_hash, generate_password_hash
 from db import db
 from db.models import users
@@ -241,7 +242,7 @@ def api(method, params):
         return {"success": True, "message": "Cart cleared"}
     
     elif method == "checkout":
-    # Оформление покупки
+        # Оформление покупки
         cart = carts.get(user_id, [])
         
         if not cart:
@@ -277,7 +278,6 @@ def view_cart():
 def checkout_page():
     """Страница оформления заказа"""
     return render_template('rgz/checkout.html', current_user=current_user)
-
 
 @rgz.route('/rgz/order-confirmation/<order_id>')
 @login_required
