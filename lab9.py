@@ -21,20 +21,16 @@ BOXES_CONFIG = [
     {"id": 10, "message": "Ура! Главный приз года!", "auth_required": False},
 ]
 
-# Размеры коробки (должны совпадать с CSS)
+# Размеры коробки 
 BOX_WIDTH = 120   
 BOX_HEIGHT = 150  
 MIN_DISTANCE = 140  
 
 def is_position_valid(new_pos, existing_positions):
-    """
-    Проверяет, не накладывается ли новая позиция на существующие
-    new_pos: dict с 'top' и 'left'
-    existing_positions: список dict с 'top' и 'left'
-    """
+    
     if not existing_positions:
         return True
-    
+    # Проверяет расстояние между коробками
     for pos in existing_positions:
         # Вычисляем расстояние между центрами
         distance = math.sqrt(
@@ -49,9 +45,7 @@ def is_position_valid(new_pos, existing_positions):
     return True
 
 def generate_unique_position(existing_positions, max_attempts=100):
-    """
-    Генерирует уникальную позицию без наложения
-    """
+    
     # Размеры контейнера
     container_width = 1400
     container_height = 650
@@ -80,7 +74,7 @@ def generate_unique_position(existing_positions, max_attempts=100):
     }
 
 def init_session_data():
-    """Инициализация данных в сессии с проверкой на наложение"""
+
     if 'lab9_boxes' not in session:
         boxes_data = []
         existing_positions = []
@@ -107,21 +101,21 @@ def init_session_data():
         session['lab9_opened_boxes'] = json.dumps([])
 
 def get_boxes():
-    """Получить все коробки"""
+
     init_session_data()
     return json.loads(session['lab9_boxes'])
 
 def get_opened_boxes():
-    """Получить открытые коробки"""
+
     init_session_data()
     return json.loads(session['lab9_opened_boxes'])
 
 def save_boxes(boxes):
-    """Сохранить коробки в сессию"""
+
     session['lab9_boxes'] = json.dumps(boxes)
 
 def save_opened_boxes(opened_boxes):
-    """Сохранить открытые коробки в сессию"""
+
     session['lab9_opened_boxes'] = json.dumps(opened_boxes)
 
 @lab9.route('/lab9/')
@@ -193,7 +187,7 @@ def open_box():
 @lab9.route('/lab9/reset_boxes', methods=['POST'])
 @login_required
 def reset_boxes():
-    """Сброс всех коробок с проверкой на наложение"""
+
     boxes = []
     existing_positions = []
     
@@ -250,14 +244,14 @@ def congratulation(box_id):
 
 @lab9.route('/lab9/debug_clear')
 def debug_clear():
-    """Отладочная функция для очистки сессии"""
+
     session.pop('lab9_boxes', None)
     session.pop('lab9_opened_boxes', None)
     return redirect(url_for('lab9.main'))
 
 @lab9.route('/lab9/debug_positions')
 def debug_positions():
-    """Отладочная страница с информацией о позициях"""
+
     boxes = get_boxes()
     
     # Проверяем наложение
